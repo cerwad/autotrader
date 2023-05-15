@@ -1,7 +1,5 @@
 package fr.ced.autotrader.data;
 
-import org.apache.log4j.Logger;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -11,8 +9,6 @@ import java.time.format.DateTimeFormatter;
  */
 
 public class GraphPoint {
-    private static Logger logger = Logger.getLogger(GraphPoint.class);
-
 
     private Double price;
     private String date;

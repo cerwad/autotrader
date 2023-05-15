@@ -1,6 +1,6 @@
 package fr.ced.autotrader.algo.baseline;
 
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -8,9 +8,8 @@ import java.util.List;
 /**
  * Created by cwaadd on 15/10/2017.
  */
-
+@Slf4j
 public class BaseLineAnalysis<T extends BaseLine> {
-    private static Logger logger = Logger.getLogger(BaseLineAnalysis.class);
 
     protected double lastPrice;
     protected List<T> baseLines;

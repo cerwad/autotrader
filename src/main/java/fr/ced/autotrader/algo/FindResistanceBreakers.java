@@ -1,6 +1,5 @@
 package fr.ced.autotrader.algo;
 
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class FindResistanceBreakers {
-    private static Logger logger = Logger.getLogger(FindResistanceBreakers.class);
 
 /*
 

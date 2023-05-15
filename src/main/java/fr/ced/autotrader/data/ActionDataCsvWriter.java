@@ -3,7 +3,7 @@ package fr.ced.autotrader.data;
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
 import fr.ced.autotrader.data.csv.columns.ActionCol;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,9 +22,8 @@ import java.util.Locale;
 /**
  * Created by cwaadd on 13/10/2017.
  */
+@Slf4j
 public class ActionDataCsvWriter {
-    private static Logger logger = Logger.getLogger(ActionDataCsvWriter.class);
-
     private File actionFile;
     private ActionCol[] actionCols;
     private String csvDelimiter;
@@ -55,7 +54,7 @@ public class ActionDataCsvWriter {
     }
 
     public void write(Collection<Action> actions){
-        logger.info("Saving action data");
+        log.info("Saving action data");
         df.applyPattern("###.##");
         List<String> lines = new ArrayList<>();
         for (Action action : actions){
@@ -95,7 +94,7 @@ public class ActionDataCsvWriter {
         try {
             sink.writeLines(lines);
         } catch (IOException e) {
-            logger.error("Error while writing action file", e);
+            log.error("Error while writing action file", e);
         }
     }
 

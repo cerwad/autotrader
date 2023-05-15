@@ -1,7 +1,5 @@
 package fr.ced.autotrader.data;
 
-import org.apache.log4j.Logger;
-
 import java.util.Comparator;
 
 
@@ -10,7 +8,6 @@ import java.util.Comparator;
  */
 
 public class ActionComparators {
-    private static Logger logger = Logger.getLogger(ActionComparators.class);
 
     public static Comparator<Action> globalMarkComparator = (a1, a2) -> Double.compare(conv(a1.getGlobalMark()), conv(a2.getGlobalMark()));
 

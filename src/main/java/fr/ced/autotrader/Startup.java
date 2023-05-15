@@ -4,7 +4,6 @@ import fr.ced.autotrader.data.Action;
 import fr.ced.autotrader.data.MarketDataReader;
 import fr.ced.autotrader.webCrawler.MarketDataCrawler;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +23,6 @@ import java.util.logging.Level;
  */
 @Component
 public class Startup {
-    private static Logger logger = Logger.getLogger(Startup.class);
-
 
     @Autowired
     private MarketDataReader dataReader;
@@ -39,7 +36,6 @@ public class Startup {
     @PostConstruct
     private void init() {
         // Shut the hell of htmlUnit
-        LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
         java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
         java.util.logging.Logger.getLogger("c.g").setLevel(Level.OFF);
         java.util.logging.Logger.getLogger("c.g.htmlunit").setLevel(Level.OFF);

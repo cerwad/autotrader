@@ -6,7 +6,7 @@ import com.google.common.io.Files;
 import fr.ced.autotrader.data.csv.columns.ActionCol;
 import fr.ced.autotrader.data.csv.columns.QuotesCol;
 import fr.ced.autotrader.data.csv.columns.RefCol;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * Created by cwaadd on 20/09/2017.
  */
+@Slf4j
 public class QuotesCsvReader implements MarketDataReader{
-    private static Logger logger = Logger.getLogger(QuotesCsvReader.class);
 
     private String csvFilePath;
     private File referenceFile;
@@ -153,7 +153,7 @@ public class QuotesCsvReader implements MarketDataReader{
             try {
                 charSource.forEachLine(this::readActionFileLine);
             } catch (IOException ioe) {
-                logger.error("Impossible to read Reference file", ioe);
+                log.error("Impossible to read Reference file", ioe);
             }
         }
     }
@@ -213,7 +213,7 @@ public class QuotesCsvReader implements MarketDataReader{
                         break;
                 }
             } catch (NumberFormatException ne){
-                logger.error("Could not read value "+value, ne);
+                log.error("Could not read value "+value, ne);
             }
         }
 
@@ -232,7 +232,7 @@ public class QuotesCsvReader implements MarketDataReader{
         try {
             charSource.forEachLine(s -> readDataFileLine(s, file));
         } catch (IOException ioe){
-            logger.error("Impossible to read Reference file", ioe);
+            log.error("Impossible to read Reference file", ioe);
         }
     }
 
@@ -279,10 +279,10 @@ public class QuotesCsvReader implements MarketDataReader{
                             break;
                     }
                 } else {
-                    logger.warn("empty value for line " + l + " col " + i+ " and file "+file.getName());
+                    log.warn("empty value for line " + l + " col " + i+ " and file "+file.getName());
                 }
             } catch (NumberFormatException e){
-                logger.error("Bad format value for line " + l + " col " + i+ " and file "+file.getName());
+                log.error("Bad format value for line " + l + " col " + i+ " and file "+file.getName());
             }
         }
         // Check if action exists in referential
@@ -322,7 +322,7 @@ public class QuotesCsvReader implements MarketDataReader{
                 lastDateOfCotation = dayQuote.getDate();
             }
         } // else {
-            //logger.error("Unknown action "+isin+ticker+" in file "+file.getName());
+            //log.error("Unknown action "+isin+ticker+" in file "+file.getName());
         //}
         //System.out.println("is:"+isin+" line:"+l);
         l++;
@@ -334,9 +334,9 @@ public class QuotesCsvReader implements MarketDataReader{
         List<Action> actions = new ArrayList<>();
         try {
             charSource.forEachLine(s -> readRefFileLine(s, actions));
-            logger.info("Reading reference file successfully");
+            log.info("Reading reference file successfully");
         } catch (IOException ioe){
-            logger.error("Impossible to read Reference file", ioe);
+            log.error("Impossible to read Reference file", ioe);
         }
         return actions;
     }

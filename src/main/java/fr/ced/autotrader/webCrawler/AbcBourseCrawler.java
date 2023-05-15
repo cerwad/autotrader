@@ -1,7 +1,5 @@
 package fr.ced.autotrader.webCrawler;
 
-import org.apache.log4j.Logger;
-
 import javax.annotation.Nullable;
 
 
@@ -11,7 +9,6 @@ import javax.annotation.Nullable;
  * Created by cwaadd on 28/09/2017.
  */
 public class AbcBourseCrawler extends MarkCrawler{
-    private static Logger logger = Logger.getLogger(AbcBourseCrawler.class);
 
     private final static String USER_AGENT = "Mozilla/5.0";
 

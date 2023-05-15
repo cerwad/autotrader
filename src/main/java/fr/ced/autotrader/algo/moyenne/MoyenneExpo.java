@@ -1,7 +1,6 @@
 package fr.ced.autotrader.algo.moyenne;
 
 import fr.ced.autotrader.data.GraphPoint;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
  */
 
 public class MoyenneExpo {
-    private static Logger logger = Logger.getLogger(MoyenneExpo.class);
     private List<GraphPoint> allList;
 
     public MoyenneExpo(List<GraphPoint> allList){

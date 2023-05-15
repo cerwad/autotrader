@@ -2,7 +2,6 @@ package fr.ced.autotrader.test.webCrawler;
 
 import fr.ced.autotrader.test.MarketDataCrawlerTestConfiguration;
 import fr.ced.autotrader.webCrawler.BoursoCrawler;
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MarketDataCrawlerTestConfiguration.class)
 public class BoursoCrawlerTest {
-    private static Logger logger = Logger.getLogger(BoursoCrawlerTest.class);
 
     @Autowired
     BoursoCrawler boursoCrawler;

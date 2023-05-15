@@ -1,7 +1,6 @@
 package fr.ced.autotrader.algo;
 
 import fr.ced.autotrader.data.GraphPoint;
-import org.apache.log4j.Logger;
 
 import java.time.LocalDate;
 import java.time.chrono.ChronoPeriod;
@@ -14,7 +13,6 @@ import java.util.List;
  * Created by cwaadd on 26/09/2019.
  */
 public class GraphAdapter {
-    private static Logger logger = Logger.getLogger(GraphAdapter.class);
     private static GraphAdapter instance;
 
     private LocalDate startDate;

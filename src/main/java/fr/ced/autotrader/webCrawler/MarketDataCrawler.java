@@ -1,13 +1,15 @@
 package fr.ced.autotrader.webCrawler;
 
 import com.gargoylesoftware.htmlunit.*;
-import com.gargoylesoftware.htmlunit.html.*;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 import fr.ced.autotrader.AppProperties;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-
 
 import java.io.*;
 import java.time.LocalDate;
@@ -19,9 +21,8 @@ import java.time.temporal.ChronoUnit;
  * Created by cwaadd on 13/02/2018.
  */
 @Component
+@Slf4j
 public class MarketDataCrawler {
-    private static Logger logger = Logger.getLogger(MarketDataCrawler.class);
-
     @Autowired
     private AppProperties properties;
 
@@ -61,7 +62,7 @@ public class MarketDataCrawler {
 
 
         } catch (IOException ioe){
-            logger.error("Impossible to connect to abcbourse website and download the cotations of this day", ioe);
+            log.error("Impossible to connect to abcbourse website and download the cotations of this day", ioe);
         }
     }
 
@@ -71,7 +72,7 @@ public class MarketDataCrawler {
         Assert.isTrue(endDate.isAfter(startDate) && ChronoUnit.DAYS.between(startDate, endDate) < 32, "The duration must not exceed 1 month");
         WebClient webClient = getWebClient();
 
-        logger.info("Downloading cotations from "+startDate+" to "+endDate);
+        log.info("Downloading cotations from "+startDate+" to "+endDate);
         downloadMonthlyBulkCotations(startDate, endDate, webClient);
     }
 
@@ -108,9 +109,9 @@ public class MarketDataCrawler {
 
             File file = new File(properties.getCotationsPath() + "/" + fileName);
             downloadFile(response, file);
-            logger.info("Downloading file "+fileName);
+            log.info("Downloading file "+fileName);
         } catch (IOException ioe){
-            logger.error("Impossible to connect to abcbourse website and download cotations between "+ startDate.format(DateTimeFormatter.BASIC_ISO_DATE) + " and "+ endDate.format(DateTimeFormatter.BASIC_ISO_DATE));
+            log.error("Impossible to connect to abcbourse website and download cotations between "+ startDate.format(DateTimeFormatter.BASIC_ISO_DATE) + " and "+ endDate.format(DateTimeFormatter.BASIC_ISO_DATE));
         }
     }
 

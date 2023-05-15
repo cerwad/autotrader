@@ -1,7 +1,6 @@
 package fr.ced.autotrader.test.data;
 
 import fr.ced.autotrader.data.*;
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import java.util.*;
  */
 
 public class MarketDataRepositoryImplTest {
-    private static Logger logger = Logger.getLogger(MarketDataRepositoryImplTest.class);
 
     private MarketDataRepositoryImpl dataRepository = new MarketDataRepositoryImpl();
 

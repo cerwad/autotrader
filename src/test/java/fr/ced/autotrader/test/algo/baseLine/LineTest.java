@@ -2,14 +2,11 @@ package fr.ced.autotrader.test.algo.baseLine;
 
 import fr.ced.autotrader.algo.baseline.Line;
 import fr.ced.autotrader.data.GraphPoint;
-import org.apache.log4j.Logger;
-import org.apache.xalan.xsltc.util.IntegerArray;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -18,7 +15,6 @@ import java.util.List;
  */
 
 public class LineTest {
-    private static Logger logger = Logger.getLogger(LineTest.class);
 
     @Test
     public void testGetGraphPriceFlatLine(){

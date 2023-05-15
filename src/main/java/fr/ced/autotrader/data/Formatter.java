@@ -1,7 +1,5 @@
 package fr.ced.autotrader.data;
 
-import org.apache.log4j.Logger;
-
 import java.math.BigDecimal;
 
 
@@ -10,8 +8,6 @@ import java.math.BigDecimal;
  */
 
 public class Formatter {
-    private static Logger logger = Logger.getLogger(Formatter.class);
-
     public static double round2Digits(double value){
         BigDecimal bigVal = new BigDecimal(value);
         bigVal = bigVal.setScale(2, BigDecimal.ROUND_HALF_UP);

@@ -1,6 +1,5 @@
 package fr.ced.autotrader.algo;
 
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,8 +10,6 @@ import java.util.List;
  */
 @Component
 public class FindHighestShares {
-    private static Logger logger = Logger.getLogger(FindHighestShares.class);
-
     public boolean isHistoricallyHigh(List<Double> prices){
         boolean ret = false;
         if(prices.size() - 1 > 0) {

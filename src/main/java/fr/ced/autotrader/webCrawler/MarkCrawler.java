@@ -1,6 +1,6 @@
 package fr.ced.autotrader.webCrawler;
 
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,10 +13,8 @@ import java.net.URL;
 /**
  * Created by cwaadd on 02/03/2018.
  */
-
+@Slf4j
 public abstract class MarkCrawler {
-    private static Logger logger = Logger.getLogger(MarkCrawler.class);
-
     private final static String USER_AGENT = "Mozilla/5.0";
 
     private String url;
@@ -66,9 +64,9 @@ public abstract class MarkCrawler {
 
 
         } catch (MalformedURLException e) {
-            logger.error("Malformed url : "+url, e);
+            log.error("Malformed url : "+url, e);
         } catch (IOException ex){
-            logger.error("Connexion problem", ex);
+            log.error("Connexion problem", ex);
         } finally {
             if(con != null){
                 con.disconnect();

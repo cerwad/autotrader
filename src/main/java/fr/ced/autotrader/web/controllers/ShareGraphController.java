@@ -6,7 +6,6 @@ import fr.ced.autotrader.data.Action;
 import fr.ced.autotrader.data.GraphPoint;
 import fr.ced.autotrader.data.MarketDataRepository;
 import fr.ced.autotrader.data.Tendency;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -22,7 +24,6 @@ import java.util.*;
  */
 @Controller
 public class ShareGraphController {
-    private static Logger logger = Logger.getLogger(ShareGraphController.class);
 
     private Set<String> lines = new HashSet<>();
     {

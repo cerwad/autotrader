@@ -1,15 +1,10 @@
 package fr.ced.autotrader.data;
 
-import org.apache.log4j.Logger;
-
-
 /**
  * Created by cwaadd on 15/10/2017.
  */
 
 public class Forecast {
-    private static Logger logger = Logger.getLogger(Forecast.class);
-
 
     private double oneMonthPrice;
     private double threeMonthsPrice;

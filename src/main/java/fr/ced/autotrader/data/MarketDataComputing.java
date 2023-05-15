@@ -3,23 +3,25 @@ package fr.ced.autotrader.data;
 import fr.ced.autotrader.algo.AnalyticsTools;
 import fr.ced.autotrader.algo.ComputingException;
 import fr.ced.autotrader.algo.baseline.*;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 
 /**
  * Created by cwaadd on 15/10/2017.
  */
+@Slf4j
 @Component
 public class MarketDataComputing {
-    private static Logger logger = Logger.getLogger(MarketDataComputing.class);
-
     private boolean firstComputation = false;
 
     @Autowired
@@ -33,10 +35,10 @@ public class MarketDataComputing {
     @Scheduled(fixedDelay = 600000, initialDelay = 10000)
     public void computeMarketDataTask(){
         // Recurrent actions
-        logger.debug("Write action data");
+        log.debug("Write action data");
         Collection<Action> actions = marketDataRepository.getAllActions();
         if(!firstComputation) {
-            logger.debug("Compute market data");
+            log.debug("Compute market data");
             computeMarketData(actions);
             firstComputation = true;
         }

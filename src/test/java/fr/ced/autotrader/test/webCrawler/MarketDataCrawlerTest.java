@@ -3,14 +3,12 @@ package fr.ced.autotrader.test.webCrawler;
 import fr.ced.autotrader.AppProperties;
 import fr.ced.autotrader.test.MarketDataCrawlerTestConfiguration;
 import fr.ced.autotrader.webCrawler.MarketDataCrawler;
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -24,7 +22,6 @@ import java.time.LocalDate;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MarketDataCrawlerTestConfiguration.class)
 public class MarketDataCrawlerTest {
-    private static Logger logger = Logger.getLogger(MarketDataCrawlerTest.class);
 
     private String cotationsPath = "/Users/cwaadd/Documents/Autotrader/test";
 

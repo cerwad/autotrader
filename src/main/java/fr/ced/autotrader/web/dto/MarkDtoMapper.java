@@ -2,7 +2,6 @@ package fr.ced.autotrader.web.dto;
 
 import fr.ced.autotrader.data.Action;
 import fr.ced.autotrader.data.ActionComparators;
-import org.apache.log4j.Logger;
 
 
 /**
@@ -10,8 +9,6 @@ import org.apache.log4j.Logger;
  */
 
 public class MarkDtoMapper {
-    private static Logger logger = Logger.getLogger(MarkDtoMapper.class);
-
     public static MarkDto mapGlobalMark(Action a){
         MarkDto m = new MarkDto();
         m.setMark(ActionComparators.conv(a.getGlobalMark()));

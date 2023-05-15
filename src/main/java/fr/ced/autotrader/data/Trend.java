@@ -1,7 +1,5 @@
 package fr.ced.autotrader.data;
 
-import org.apache.log4j.Logger;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import java.util.List;
  * Created by cwaadd on 15/10/2017.
  */
 public class Trend {
-    private static Logger logger = Logger.getLogger(Trend.class);
 
     public Trend(List<GraphPoint> prices){
         this.prices = prices;

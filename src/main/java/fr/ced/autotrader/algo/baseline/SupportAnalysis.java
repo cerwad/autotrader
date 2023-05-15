@@ -1,7 +1,5 @@
 package fr.ced.autotrader.algo.baseline;
 
-import org.apache.log4j.Logger;
-
 import java.util.List;
 
 
@@ -10,7 +8,6 @@ import java.util.List;
  */
 
 public class SupportAnalysis extends BaseLineAnalysis<Support> {
-    private static Logger logger = Logger.getLogger(SupportAnalysis.class);
 
 
     public SupportAnalysis(double lastPrice, List<Support> baseLines){

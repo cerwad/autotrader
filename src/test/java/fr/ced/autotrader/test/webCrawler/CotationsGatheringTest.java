@@ -8,8 +8,7 @@ import com.gargoylesoftware.htmlunit.html.*;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import fr.ced.autotrader.webCrawler.MarketDataCrawler;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,28 +17,30 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
  * Created by cwaadd on 23/02/2018.
  */
-
+@Slf4j
 public class CotationsGatheringTest {
-    private static Logger logger = Logger.getLogger(CotationsGatheringTest.class);
 
 
     @Before
     public void init(){
-        Logger rootLogger = Logger.getRootLogger();
+        Logger rootLogger = Logger.getGlobal();
         rootLogger.setLevel(Level.INFO);
         Logger htmlLogger = Logger.getLogger("com.gargoylesoftware");
-        htmlLogger.setLevel(Level.WARN);
+        htmlLogger.setLevel(Level.WARNING);
     }
 
 
     @Test
     public void testDownload() throws IOException {
-        File testFile = new File("/Users/cwaadd/Documents/Autotrader/test/test.txt");
+        File testFile = new File("C:\\Windows\\temp");
         if(testFile.exists()){
             testFile.delete();
         }
@@ -57,12 +58,12 @@ public class CotationsGatheringTest {
             Assert.assertEquals("Téléchargement des cotations", element.getTextContent());
 
             // Select CAC40 shares
-            element = page.getElementById("ctl00_BodyABC_xcac40p");
-            Assert.assertNotNull(element);
+            Optional<DomElement> cboxCac = page.getFirstByXPath("//input[@value='xcac40p']");
+            Assert.assertTrue(cboxCac.isPresent());
             element.click();
 
             // Click on download Button
-            DomElement buttonDownload = page.getElementById("ctl00_BodyABC_Button1");
+            DomElement buttonDownload = page.getFirstByXPath("//button[@class='btn_abc']");
             Assert.assertNotNull(buttonDownload);
             TextPage textPage = buttonDownload.click();
             WebResponse response = textPage.getWebResponse();
@@ -114,7 +115,7 @@ public class CotationsGatheringTest {
 
 
         } catch (IOException ioe){
-            logger.error("Impossible to connect to abcbourse website and download the cotations of this day", ioe);
+            log.error("Impossible to connect to abcbourse website and download the cotations of this day", ioe);
         }
     }
 

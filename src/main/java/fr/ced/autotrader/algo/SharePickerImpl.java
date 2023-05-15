@@ -2,7 +2,6 @@ package fr.ced.autotrader.algo;
 
 import fr.ced.autotrader.data.Action;
 import fr.ced.autotrader.data.MarketDataRepository;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,6 @@ import java.util.List;
  */
 @Component
 public class SharePickerImpl implements SharePicker {
-    private static Logger logger = Logger.getLogger(SharePickerImpl.class);
 
     @Autowired
     private MarketDataRepository repository;

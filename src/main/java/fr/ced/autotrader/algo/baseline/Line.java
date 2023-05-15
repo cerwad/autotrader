@@ -1,7 +1,7 @@
 package fr.ced.autotrader.algo.baseline;
 
 import fr.ced.autotrader.data.GraphPoint;
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,10 +13,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
 /**
  * Created by cwaadd on 27/09/2017.
  */
-
+@Slf4j
 public class Line {
-    private static Logger logger = Logger.getLogger(Line.class);
-
     private GraphPoint p1;
     private GraphPoint p2;
     private BigDecimal coef;

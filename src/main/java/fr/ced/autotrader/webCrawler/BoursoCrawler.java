@@ -1,16 +1,11 @@
 package fr.ced.autotrader.webCrawler;
 
-import org.apache.log4j.Logger;
-
-
 /**
  * Get from the web boursorama Marks
  *
  * Created by cwaadd on 28/09/2017.
  */
 public class BoursoCrawler extends MarkCrawler{
-    private static Logger logger = Logger.getLogger(BoursoCrawler.class);
-
 
     private final static String USER_AGENT = "Mozilla/5.0";
 

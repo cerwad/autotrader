@@ -1,6 +1,6 @@
 package fr.ced.autotrader.algo.baseline;
 
-import org.apache.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 
@@ -10,9 +10,8 @@ import java.time.LocalDate;
  *
  * Created by cwaadd on 15/10/2017.
  */
-
+ @Slf4j
 public class BaseLine {
-    private static Logger logger = Logger.getLogger(BaseLine.class);
 
     protected Line line;
     protected double value;

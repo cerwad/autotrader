@@ -1,7 +1,5 @@
 package fr.ced.autotrader;
 
-import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.time.format.DateTimeFormatter;
 
@@ -11,7 +9,6 @@ import java.time.format.DateTimeFormatter;
  */
 
 public class AppProperties {
-    private static Logger logger = Logger.getLogger(AppProperties.class);
 
     private String basePath;
     private String dbFilepath;

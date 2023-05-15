@@ -1,14 +1,10 @@
 package fr.ced.autotrader.algo;
 
-import org.apache.log4j.Logger;
-
-
 /**
  * Created by cwaadd on 25/09/2017.
  */
 
 public class Pivot {
-    private static Logger logger = Logger.getLogger(Pivot.class);
 
     private double pivot;
     private double r1;

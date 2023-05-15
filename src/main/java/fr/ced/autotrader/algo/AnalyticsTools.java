@@ -7,7 +7,6 @@ import fr.ced.autotrader.algo.moyenne.MoyenneExpo;
 import fr.ced.autotrader.algo.moyenne.MoyenneExpoDouble;
 import fr.ced.autotrader.algo.moyenne.MoyenneMobile;
 import fr.ced.autotrader.data.GraphPoint;
-import org.apache.log4j.Logger;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
  */
 
 public class AnalyticsTools {
-    private static Logger logger = Logger.getLogger(AnalyticsTools.class);
 
     public Pivot getPivot(List<Double> prices){
         Pivot p = new Pivot();

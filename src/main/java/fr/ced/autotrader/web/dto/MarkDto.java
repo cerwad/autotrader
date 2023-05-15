@@ -1,14 +1,10 @@
 package fr.ced.autotrader.web.dto;
 
-import org.apache.log4j.Logger;
-
-
 /**
  * Created by cwaadd on 04/04/2018.
  */
 
 public class MarkDto {
-    private static Logger logger = Logger.getLogger(MarkDto.class);
 
     private String name;
     private String ticker;

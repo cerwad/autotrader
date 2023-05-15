@@ -1,7 +1,6 @@
 package fr.ced.autotrader.algo;
 
 import fr.ced.autotrader.data.Action;
-import org.apache.log4j.Logger;
 
 
 /**
@@ -9,8 +8,6 @@ import org.apache.log4j.Logger;
  */
 
 public class AnalysisResult {
-    private static Logger logger = Logger.getLogger(AnalysisResult.class);
-
     private Action action;
     private double potential;
     private double risk;
