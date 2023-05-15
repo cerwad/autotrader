@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AutoTrader</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap css -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div th:replace="header :: navbar">FUCKING NAVBAR</div>
+    <h2>List of highest shares</h2>
+    <p>This is the list of the most promising shares without resistance</p>
+    <ul class="list-group" >
+        <span th:each="res : ${results}">
+            <a th:href="@{/graph.html(actionId=${res.action.ticker})}" href="/graph.html?actionId=KER">
+                <li class="list-group-item list-group-item-success" ><span th:text="|${res.action.name} (${res.action.ticker})|">KERING (KER)</span> <span th:text="${#numbers.formatDecimal(res.action.globalMark,1,2)}" class="badge">1,0</span> </li>
+            </a>
+        </span>
+    </ul>
+
+</body>
+
+</html>

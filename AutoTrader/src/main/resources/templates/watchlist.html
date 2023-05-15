@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AutoTrader</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap css -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<div th:replace="header :: navbar">FUCKING NAVBAR</div>
+<h2>List of shares to watch</h2>
+<p>This is the list of shares with good potential, waiting the best moment to buy</p>
+<div class="btn-group btn-group-toggle" data-toggle="buttons">
+    <label class="btn btn-secondary " th:classappend="${mark == 'all'} ? active : inactive" onclick="location.href='/watchlist'">
+        <input type="radio" name="mark" id="all" autocomplete="off" th:checked="${mark == 'all'}" /> All
+    </label>
+    <label class="btn btn-secondary" th:classappend="${mark == 'tech'} ? active : inactive" onclick="location.href='/watchlist/tech'">
+        <input type="radio" name="mark" id="tech" autocomplete="off" th:checked="${mark == 'tech'}"/> Tech
+    </label>
+    <label class="btn btn-secondary" th:classappend="${mark == 'bourso'} ? active : inactive" onclick="location.href='/watchlist/bourso'">
+        <input type="radio" name="mark" id="bourso" autocomplete="off" th:checked="${mark == 'bourso'}"/> Bourso
+    </label>
+</div>
+<ul class="list-group" >
+    <span th:each="action : ${results}">
+        <a th:href="|/graph.html?actionId=${action.ticker}|" href="/graph.html?actionId=KER">
+            <li class="list-group-item list-group-item-success" ><span th:text="|${action.name} (${action.ticker})|">KERING (KER)</span> <span th:text="${#numbers.formatDecimal(action.mark,1,2)}" class="badge">1,0</span> </li>
+        </a>
+    </span>
+</ul>
+</body>
+</html>
