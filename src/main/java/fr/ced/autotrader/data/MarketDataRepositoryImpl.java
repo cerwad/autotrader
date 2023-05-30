@@ -1,8 +1,12 @@
 package fr.ced.autotrader.data;
 
 import fr.ced.autotrader.Startup;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.DayOfWeek;
@@ -13,31 +17,29 @@ import java.util.stream.Collectors;
 /**
  * Created by cwaadd on 20/09/2017.
  */
-public class MarketDataRepositoryImpl implements MarketDataRepository {
+@Slf4j
+@RequiredArgsConstructor
+public class MarketDataRepositoryImpl implements MarketDataRepository, ApplicationContextAware {
 
     private AllQuotesData allQuotesData;
 
-    @Autowired
-    private MarketDataReader marketDataReader;
+    private final MarketDataReader marketDataReader;
 
-    @Autowired
-    private ThreadPoolTaskExecutor taskExecutor;
+    private final ThreadPoolTaskExecutor taskExecutor;
 
-    @Autowired
-    private ApplicationContext appContext;
-
-    @Autowired
-    private Startup startup;
-
+    private ApplicationContext applicationContext;
 
     protected void init(){
+        log.info("initializing DB");
         allQuotesData = marketDataReader.getData();
+        log.info("There are "+getAllPrices("BNP").size()+" prices for bnp");
         Collection<Action> actions = getAllActions();
+        log.info("There are "+actions.size()+" actions");
         // Search data on the web if needed (abcbourse mark and bourso mark for now)
         for(Action action : actions){
 
             if(action.getInfoDate() == null || action.getInfoDate().isBefore(LocalDate.now())) {
-                ActionDataWebCrawler actionDataCalculator = (ActionDataWebCrawler) appContext.getBean("actionDataWebCrawler");
+                ActionDataWebCrawler actionDataCalculator = (ActionDataWebCrawler) applicationContext.getBean("actionDataWebCrawler");
                 actionDataCalculator.setAction(action);
                 taskExecutor.execute(actionDataCalculator);
             }
@@ -138,6 +140,7 @@ public class MarketDataRepositoryImpl implements MarketDataRepository {
         if(allQuotesData.getSortedQuotes().containsKey(id)) {
 
             List<DayQuote> quotes = allQuotesData.getSortedQuotes().get(id);
+            log.debug("{}: nb quotes {}", id, quotes.size());
             DayQuote firstQuote = quotes.get(0);
             if(firstQuote.getDate().isAfter(from)){
                 ret = quotes;
@@ -238,10 +241,13 @@ public class MarketDataRepositoryImpl implements MarketDataRepository {
 
     @Override
     public List<GraphPoint> getGraphDataFromDate(String id, LocalDate from) {
+        log.info("Get prices for action {} and date {}", id, from);
         final List<GraphPoint> prices = new ArrayList<>();
         if(allQuotesData.getSortedQuotes().containsKey(id)){
+            log.debug("getQuotesFromDate "+from);
             List<DayQuote> quotes =  getQuotesFromDate(id, from);
             if(quotes != null) {
+                log.debug("Nb Quotes for action {}: {}", id, quotes.size());
                 quotes.forEach(quote -> prices.add(new GraphPoint(quote.getClosePrice(), quote.getDate())));
             }
         }
@@ -253,8 +259,13 @@ public class MarketDataRepositoryImpl implements MarketDataRepository {
         List<DayQuote> quotes = getLastWeekQuotes(id);
         DayQuote lastQuote = null;
         if(quotes != null){
-            lastQuote = quotes.stream().max( (q1, q2) -> q1.getDate().compareTo(q2.getDate())).get();
+            lastQuote = quotes.stream().max(Comparator.comparing(DayQuote::getDate)).get();
         }
         return Optional.ofNullable(lastQuote);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

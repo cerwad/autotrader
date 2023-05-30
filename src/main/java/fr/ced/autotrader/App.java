@@ -81,12 +81,12 @@ public class App {
     }
 
     @Bean(initMethod = "init")
-    public MarketDataRepository dataRepository(){
-        return new MarketDataRepositoryImpl();
+    public MarketDataRepository dataRepository(MarketDataReader dataReader, ThreadPoolTaskExecutor taskExecutor){
+        return new MarketDataRepositoryImpl(dataReader, taskExecutor);
     }
 
     @Bean
-    public ThreadPoolTaskExecutor getTaskExecutor(){
+    public ThreadPoolTaskExecutor taskExecutor(){
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setCorePoolSize(10);
         taskExecutor.setMaxPoolSize(15);

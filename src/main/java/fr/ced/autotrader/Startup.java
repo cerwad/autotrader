@@ -53,7 +53,7 @@ public class Startup {
         File[] fList = directory.listFiles();
         if (fList == null || fList.length == 0){
             log.error("No data Found");
-            //getAllHistory();
+            getAllHistory();
         }
 
         dataReader.loadData();
@@ -94,17 +94,22 @@ public class Startup {
 
     private void getAllHistory() {
         // Get 5 years history for all actions CAC 40 and SBF 120
-        LocalDate startDate = LocalDate.now().minus(5, ChronoUnit.YEARS);
+        LocalDate startDate = LocalDate.now().minus(10, ChronoUnit.YEARS);
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
         startDate = startDate.withDayOfMonth(1);
         LocalDate iterDate = startDate;
         while (iterDate.isBefore(startOfMonth) || iterDate.isEqual(startOfMonth)){
-            LocalDate endDate = iterDate.plus(1, ChronoUnit.MONTHS).minus(1, ChronoUnit.DAYS);
-            if(endDate.isAfter(LocalDate.now())){
-                endDate = LocalDate.now();
+            try {
+                LocalDate endDate = iterDate.plus(1, ChronoUnit.MONTHS).minus(1, ChronoUnit.DAYS);
+                if (endDate.isAfter(LocalDate.now())) {
+                    endDate = LocalDate.now();
+                }
+                marketDataCrawler.downloadMonthlyBulkCotations(iterDate, endDate);
+                iterDate = iterDate.plus(1, ChronoUnit.MONTHS);
+                Thread.sleep(1000);
+            } catch (InterruptedException ie){
+                log.error("Thread Interruption", ie);
             }
-            marketDataCrawler.downloadMonthlyBulkCotations(iterDate, endDate);
-            iterDate = iterDate.plus(1, ChronoUnit.MONTHS);
         }
     }
 }

@@ -54,7 +54,7 @@ public class MarketDataCrawlerTest {
         File downloadFile = new File(appProperties.getCotationsPath() + "/"+MarketDataCrawler.buildFileName("SBF", startDate));
         Assert.assertTrue(downloadFile.exists());
         if(downloadFile.exists()){
-            downloadFile.delete();
+            //downloadFile.delete();
         }
     }
 }

@@ -15,7 +15,7 @@ import java.util.*;
 
 public class MarketDataRepositoryImplTest {
 
-    private MarketDataRepositoryImpl dataRepository = new MarketDataRepositoryImpl();
+    private MarketDataRepositoryImpl dataRepository = new MarketDataRepositoryImpl(new QuotesCsvReader(), null);
 
     @Before
     public void init(){

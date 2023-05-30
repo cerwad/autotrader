@@ -36,6 +36,7 @@
 /mnt/c/Programmation/Workspace/autotrader/src/main/java/fr/ced/autotrader/data/ActionDataCsvWriter.java
 /mnt/c/Programmation/Workspace/autotrader/src/main/java/fr/ced/autotrader/data/csv/columns/QuotesCol.java
 /mnt/c/Programmation/Workspace/autotrader/src/main/java/fr/ced/autotrader/webCrawler/MarkCrawler.java
+/mnt/c/Programmation/Workspace/autotrader/src/main/java/fr/ced/autotrader/config/GlobalExceptionHandler.java
 /mnt/c/Programmation/Workspace/autotrader/src/main/java/fr/ced/autotrader/algo/baseline/SupportAnalysis.java
 /mnt/c/Programmation/Workspace/autotrader/src/main/java/fr/ced/autotrader/algo/moyenne/MoyenneExpo.java
 /mnt/c/Programmation/Workspace/autotrader/src/main/java/fr/ced/autotrader/web/controllers/HighestSharesController.java

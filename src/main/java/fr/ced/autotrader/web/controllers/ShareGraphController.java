@@ -6,6 +6,7 @@ import fr.ced.autotrader.data.Action;
 import fr.ced.autotrader.data.GraphPoint;
 import fr.ced.autotrader.data.MarketDataRepository;
 import fr.ced.autotrader.data.Tendency;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,10 +23,11 @@ import java.util.Set;
 /**
  * Created by cwaadd on 26/09/2017.
  */
+@Slf4j
 @Controller
 public class ShareGraphController {
 
-    private Set<String> lines = new HashSet<>();
+    private final Set<String> lines = new HashSet<>();
     {
         lines.add("mm50");
         lines.add("mm20");
@@ -33,17 +35,16 @@ public class ShareGraphController {
         lines.add("resistance");
     }
 
-    private int nbMonths = 12;
-
-    private String actionTicker = "CAP";
 
     @Autowired
-    MarketDataRepository repo;
+    private MarketDataRepository repo;
 
     @RequestMapping("/graph")
-    public String displayGraph(@RequestParam(value="period", required = false) String period, @RequestParam(value="actionId", required = false) String actionId, @RequestParam(value="lines", required = false) String[] linesArray, Model model) {
-
+    public String displayGraph(@RequestParam(value="period", required = false) String period, @RequestParam(value="actionId", required = false, defaultValue = "CAP") String actionId, @RequestParam(value="lines", required = false) String[] linesArray, Model model) {
+        log.info("Calling /graph for action "+actionId);
         String view = "actionNotFound";
+        String actionTicker = "CAP";
+        int nbMonths = 6;
         // Read request parameters
         if(actionId != null){
             actionTicker = actionId.toUpperCase();
@@ -110,7 +111,11 @@ public class ShareGraphController {
                     }
                     model.addAttribute("supports", supports);
                 }
-                model.addAttribute("trend_img_url", "/img/"+getImage(action.getTrend().getTendency()));
+                if(action.getTrend() == null){
+                    model.addAttribute("trend_img_url", "/img/stagnation.png");
+                }else {
+                    model.addAttribute("trend_img_url", "/img/" + getImage(action.getTrend().getTendency()));
+                }
             }
             model.addAttribute("action", action);
             view = "graph";

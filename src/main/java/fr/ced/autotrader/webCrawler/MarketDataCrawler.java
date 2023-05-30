@@ -96,9 +96,7 @@ public class MarketDataCrawler {
             HtmlPage page = webClient.getPage(ABCBOURSE_URL);
 
             String prefix = null;
-            // Select CAC40 shares
-            getFirstCbox(page, CAC40_ID).click();
-            // Select SBF 120 shares
+            // Select SBF 120 shares contains CAC40
             getFirstCbox(page, SBF120_ID).click();
             prefix = "SBF";
 
@@ -106,11 +104,13 @@ public class MarketDataCrawler {
 
             // Select start Date
             HtmlDateInput dateField = form.getFirstByXPath("//input[@id='txtFrom'][@type='date']");
-            dateField.setValueAttribute(startDate.format(AppProperties.frenchFormat));
+            log.debug("Set start date : "+startDate.format(DateTimeFormatter.ISO_DATE));
+            dateField.setValue(startDate.format(DateTimeFormatter.ISO_DATE));
 
             // Select end Date
             dateField = form.getFirstByXPath("//input[@id='txtTo'][@type='date']");
-            dateField.setValueAttribute(endDate.format(AppProperties.frenchFormat));
+            log.debug("Set end date : "+endDate.format(DateTimeFormatter.ISO_DATE));
+            dateField.setValue(endDate.format(DateTimeFormatter.ISO_DATE));
 
             // Click on download Button
             DomElement buttonDownload = getDownloadButton(page);

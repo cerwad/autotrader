@@ -53,6 +53,7 @@
                         <input class="btn btn-info" type="submit" value="12" name="period"/>
                         <input class="btn btn-info" type="submit" value="24" name="period"/>
                         <input class="btn btn-info" type="submit" value="36" name="period"/>
+                        <input type="hidden" name="actionId" th:value="@{${action.ticker}}"/>
                     </div>
                 </form>
                 <canvas id="chartjs-0" class="chartjs"></canvas>

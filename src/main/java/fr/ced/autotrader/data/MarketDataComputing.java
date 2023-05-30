@@ -32,7 +32,7 @@ public class MarketDataComputing {
 
     private AnalyticsTools analyticsTools = new AnalyticsTools();
 
-    @Scheduled(fixedDelay = 600000, initialDelay = 10000)
+    @Scheduled(fixedDelay = 600000, initialDelay = 12000)
     public void computeMarketDataTask(){
         // Recurrent actions
         log.debug("Write action data");
@@ -50,15 +50,17 @@ public class MarketDataComputing {
         // Do all the calculations you need
         for (Action action : actions) {
             List<GraphPoint> prices = marketDataRepository.getAllGraphData(action.getTicker());
-            computeMinMaxValue(action);
-            computeResistances(action);
-            computeSupports(action);
-            setTrend(action, prices);
-            computeTechnicalMark(action, prices);
-            computeGlobalMark(action);
-            Optional<DayQuote> quote = marketDataRepository.getLastQuoteFromAction(action.getTicker());
-            if(quote.isPresent()) {
-                action.setLastPrice(quote.get().getClosePrice());
+            if(prices != null && !prices.isEmpty()) {
+                computeMinMaxValue(action);
+                computeResistances(action);
+                computeSupports(action);
+                setTrend(action, prices);
+                computeTechnicalMark(action, prices);
+                computeGlobalMark(action);
+                Optional<DayQuote> quote = marketDataRepository.getLastQuoteFromAction(action.getTicker());
+                quote.ifPresent(dayQuote -> action.setLastPrice(dayQuote.getClosePrice()));
+            } else {
+                log.error("No prices for action {}", action.getTicker());
             }
         }
 

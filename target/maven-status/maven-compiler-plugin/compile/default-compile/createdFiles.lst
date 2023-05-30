@@ -3,6 +3,7 @@ fr/ced/autotrader/algo/moyenne/MoyenneExpo.class
 fr/ced/autotrader/algo/SharePicker.class
 fr/ced/autotrader/algo/Pivot.class
 fr/ced/autotrader/web/dto/MarkDto.class
+fr/ced/autotrader/config/GlobalExceptionHandler.class
 fr/ced/autotrader/algo/baseline/Line.class
 fr/ced/autotrader/algo/ComputingException.class
 fr/ced/autotrader/data/QuotesCsvReader$1.class

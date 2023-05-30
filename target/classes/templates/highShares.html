@@ -20,7 +20,7 @@
     <p>This is the list of the most promising shares without resistance</p>
     <ul class="list-group" >
         <span th:each="res : ${results}">
-            <a th:href="@{/graph.html(actionId=${res.action.ticker})}" href="/graph.html?actionId=KER">
+            <a th:href="@{/graph(actionId=${res.action.ticker})}" href="/graph.html?actionId=KER">
                 <li class="list-group-item list-group-item-success" ><span th:text="|${res.action.name} (${res.action.ticker})|">KERING (KER)</span> <span th:text="${#numbers.formatDecimal(res.action.globalMark,1,2)}" class="badge">1,0</span> </li>
             </a>
         </span>

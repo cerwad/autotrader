@@ -5,6 +5,7 @@ import fr.ced.autotrader.data.ActionComparators;
 import fr.ced.autotrader.data.MarketDataRepository;
 import fr.ced.autotrader.web.dto.MarkDto;
 import fr.ced.autotrader.web.dto.MarkDtoMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Created by cwaadd on 28/09/2017.
  */
-
+@Slf4j
 @Controller
 public class WatchSharesController {
 
@@ -31,6 +32,7 @@ public class WatchSharesController {
 
     @RequestMapping("/watchlist/{mark}")
     public String getWatchShares(Model model, @PathVariable @Nullable String mark) {
+        log.info("Calling /watchlist/"+mark);
         Set<Action> actions = repo.getAllActions();
         if(mark == null){
             mark = "all";
