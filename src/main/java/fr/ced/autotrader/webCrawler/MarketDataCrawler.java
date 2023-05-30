@@ -1,12 +1,12 @@
 package fr.ced.autotrader.webCrawler;
 
-import com.gargoylesoftware.htmlunit.*;
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
+
 import fr.ced.autotrader.AppProperties;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.util.Asserts;
+import org.htmlunit.*;
+import org.htmlunit.html.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -21,16 +21,15 @@ import java.time.temporal.ChronoUnit;
  * Created by cwaadd on 13/02/2018.
  */
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class MarketDataCrawler {
-    @Autowired
-    private AppProperties properties;
+    public static final String INPUT_XPATH = "//input[@value='%s']";
+    public static final String ABCBOURSE_URL = "https://www.abcbourse.com/download/historiques.aspx";
+    private final AppProperties properties;
 
     public final static String CAC40_ID = "xcac40p";
     public final static String SBF120_ID = "xsbf120p";
-    public final static String DOWNLOAD_BUTTON_ID = "Button1";
-    public final static String STARTDATE_ID = "ctl00$BodyABC$strDateDeb";
-    public final static String ENDDATE_ID = "ctl00$BodyABC$strDateFin";
 
     /**
      * Download today's cotations for all shares
@@ -40,20 +39,29 @@ public class MarketDataCrawler {
         try {
             WebClient webClient = getWebClient();
             // Visit abcBourse.com
-            HtmlPage page = webClient.getPage("https://www.abcbourse.com/download/historiques.aspx");
+            HtmlPage page = webClient.getPage(ABCBOURSE_URL);
+
+            // Find page title
+            DomNodeList<DomElement> elements = page.getElementsByTagName("h1");
+            Asserts.notNull(elements, "Must have a title");
+            Asserts.check(elements.size() == 1, "Must be only one title");
+            DomElement element = elements.get(0);
+
+            System.out.println(element.getTextContent());
+            Asserts.check("Téléchargement des cotations".equals(element.getTextContent()), "Title must be Téléchargement des cotations");
 
             // Select CAC40 shares
-            DomElement element = page.getElementById(CAC40_ID);
-            element.click();
+            DomElement cboxCac = getFirstCbox(page, CAC40_ID);
+            cboxCac.click();
 
             // Select SBF 120 shares
-            element = page.getElementById(SBF120_ID);
-            element.click();
+            DomElement cboxSbf = getFirstCbox(page, SBF120_ID);
+            cboxSbf.click();
 
             // Click on download Button
-            DomElement buttonDownload = page.getElementById(DOWNLOAD_BUTTON_ID);
-            TextPage textPage = buttonDownload.click();
-            WebResponse response = textPage.getWebResponse();
+            DomElement buttonDownload = getDownloadButton(page);
+            Page downloadPage = buttonDownload.click();
+            WebResponse response = downloadPage.getWebResponse();
             LocalDate now = LocalDate.now();
             String fileName = buildFileName(now);
 
@@ -64,6 +72,10 @@ public class MarketDataCrawler {
         } catch (IOException ioe){
             log.error("Impossible to connect to abcbourse website and download the cotations of this day", ioe);
         }
+    }
+
+    public static DomElement getFirstCbox(HtmlPage page, String id) {
+        return page.getFirstByXPath(String.format(INPUT_XPATH, id));
     }
 
     public void downloadMonthlyBulkCotations(LocalDate startDate, LocalDate endDate){
@@ -81,30 +93,29 @@ public class MarketDataCrawler {
         try {
 
             // Visit abcBourse.com
-            HtmlPage page = webClient.getPage("https://www.abcbourse.com/download/historiques.aspx");
+            HtmlPage page = webClient.getPage(ABCBOURSE_URL);
 
-            DomElement element = null;
             String prefix = null;
+            // Select CAC40 shares
+            getFirstCbox(page, CAC40_ID).click();
             // Select SBF 120 shares
-            element = page.getElementById(SBF120_ID);
+            getFirstCbox(page, SBF120_ID).click();
             prefix = "SBF";
 
-            element.click();
-            final HtmlForm form = page.getFormByName("aspnetForm");
-
+            final HtmlForm form = page.getForms().get(0);
 
             // Select start Date
-            HtmlTextInput textField = form.getInputByName(STARTDATE_ID);
-            textField.setValueAttribute(startDate.format(AppProperties.frenchFormat));
+            HtmlDateInput dateField = form.getFirstByXPath("//input[@id='txtFrom'][@type='date']");
+            dateField.setValueAttribute(startDate.format(AppProperties.frenchFormat));
 
             // Select end Date
-            textField = form.getInputByName(ENDDATE_ID);
-            textField.setValueAttribute(endDate.format(AppProperties.frenchFormat));
+            dateField = form.getFirstByXPath("//input[@id='txtTo'][@type='date']");
+            dateField.setValueAttribute(endDate.format(AppProperties.frenchFormat));
 
             // Click on download Button
-            DomElement buttonDownload = page.getElementById(DOWNLOAD_BUTTON_ID);
-            TextPage textPage = buttonDownload.click();
-            WebResponse response = textPage.getWebResponse();
+            DomElement buttonDownload = getDownloadButton(page);
+            Page downloadPage = buttonDownload.click();
+            WebResponse response = downloadPage.getWebResponse();
             String fileName = buildFileName(prefix, startDate);
 
             File file = new File(properties.getCotationsPath() + "/" + fileName);
@@ -115,6 +126,9 @@ public class MarketDataCrawler {
         }
     }
 
+    public static DomElement getDownloadButton(HtmlPage page) {
+        return page.getFirstByXPath("//button[@class='btn_abc']");
+    }
 
 
     public static WebClient getWebClient() {

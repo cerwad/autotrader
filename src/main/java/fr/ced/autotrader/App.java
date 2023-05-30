@@ -6,13 +6,21 @@ import fr.ced.autotrader.data.csv.columns.QuotesCol;
 import fr.ced.autotrader.data.csv.columns.RefCol;
 import fr.ced.autotrader.webCrawler.AbcBourseCrawler;
 import fr.ced.autotrader.webCrawler.BoursoCrawler;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @SpringBootApplication
 @EnableScheduling
@@ -22,29 +30,41 @@ public class App {
         SpringApplication.run(App.class, args);
     }
 
-    private String basePath = "/Users/cwaadd/Documents/Autotrader/";
-    private String dbFilePath = basePath+"dbFiles";
-    File actionFile = new File(dbFilePath+"/actionFile.csv");
-    ActionCol[] cols = {ActionCol.ISIN, ActionCol.DATE, ActionCol.ABCMARK, ActionCol.BOURSOMARK, ActionCol.MORNINGSTARMARK, ActionCol.GLOBALMARK};
-    String csvDelimiter = ";";
-    String cotationsPath = basePath+"cotations";
+    @Autowired
+    @Value("${app.data-path}")
+    private String dataPath;
+    private final ActionCol[] cols = {ActionCol.ISIN, ActionCol.DATE, ActionCol.ABCMARK, ActionCol.BOURSOMARK, ActionCol.MORNINGSTARMARK, ActionCol.GLOBALMARK};
+    private final String csvDelimiter = ";";
 
+    @Bean("singleThreadExecutor")
+    TaskExecutor singleThreadExecutor(){
+        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+        executor.setConcurrencyLimit(1);
+        return executor;
+    }
     @Bean
     public AppProperties appProperties(){
         AppProperties appProperties = new AppProperties();
         appProperties.setCsvDelimiter(csvDelimiter);
-        appProperties.setBasePath(basePath);
-        appProperties.setDbFilepath(dbFilePath);
-        appProperties.setActionFile(actionFile);
-        appProperties.setCotationsPath(cotationsPath);
+        appProperties.setBasePath(dataPath);
+        appProperties.setDbFilepath(dataPath+"/dbFiles/");
+        appProperties.setActionFile(new File(appProperties.getDbFilepath()+"/actionFile.csv"));
+        appProperties.setCotationsPath(dataPath+"/cotations");
         return appProperties;
     }
 
     @Bean(initMethod = "init")
-    public MarketDataReader dataReader() {
+    public MarketDataReader dataReader(AppProperties appProperties) throws FileNotFoundException {
+        if(dataPath == null){
+            throw new FileNotFoundException("Can't read data path");
+        }
+        Path path = Path.of(dataPath);
+        if(!Files.exists(path)){
+            throw new FileNotFoundException("Data folder does not exist or is unreachable: "+dataPath);
+        }
         QuotesCsvReader reader = new QuotesCsvReader();
-        reader.setCsvFilePath(cotationsPath);
-        File refFile = new File(dbFilePath+"/libelles.csv");
+        reader.setCsvFilePath(appProperties.getCotationsPath());
+        File refFile = new File(appProperties.getDbFilepath()+"/libelles.csv");
         reader.setReferenceFile(refFile);
         reader.setFileExtension("txt");
         reader.setCsvDelimiter(csvDelimiter);
@@ -54,9 +74,9 @@ public class App {
         reader.setDataFileColumns(columns2);
 
         reader.setActionCols(cols);
-        reader.setDbFilePath(dbFilePath);
+        reader.setDbFilePath(appProperties.getDbFilepath());
 
-        reader.setActionDataFile(actionFile);
+        reader.setActionDataFile(appProperties.getActionFile());
         return reader;
     }
 
@@ -77,7 +97,7 @@ public class App {
     @Bean
     public ActionDataCsvWriter getActionDataCsvWriter(){
         ActionDataCsvWriter actionDataCsvWriter = new ActionDataCsvWriter();
-        actionDataCsvWriter.setActionFile(actionFile);
+        actionDataCsvWriter.setActionFile(appProperties().getActionFile());
         actionDataCsvWriter.setActionCols(cols);
         actionDataCsvWriter.setCsvDelimiter(csvDelimiter);
         return actionDataCsvWriter;

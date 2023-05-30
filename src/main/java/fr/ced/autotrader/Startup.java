@@ -3,8 +3,10 @@ package fr.ced.autotrader;
 import fr.ced.autotrader.data.Action;
 import fr.ced.autotrader.data.MarketDataReader;
 import fr.ced.autotrader.webCrawler.MarketDataCrawler;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +23,7 @@ import java.util.logging.Level;
 /**
  * Created by cwaadd on 14/02/2018.
  */
+@Slf4j
 @Component
 public class Startup {
 
@@ -49,32 +52,44 @@ public class Startup {
         //get all the files from a directory
         File[] fList = directory.listFiles();
         if (fList == null || fList.length == 0){
-            getAllHistory();
+            log.error("No data Found");
+            //getAllHistory();
         }
 
         dataReader.loadData();
         LocalDate yesterday = LocalDate.now().minusDays(1);
         if(dataReader.getLastDateOfCotation().isBefore(yesterday) && yesterday.getDayOfWeek() != DayOfWeek.SATURDAY && yesterday.getDayOfWeek() != DayOfWeek.SUNDAY){
-            // We catch the missing days of cotation
-            LocalDate startDate = dataReader.getLastDateOfCotation().plusDays(1);
-            LocalDate endDate = LocalDate.now();
-            LocalDate end = endDate;
-            while(startDate.isBefore(endDate)) {
-                if(ChronoUnit.DAYS.between(startDate, endDate) > 31) {
-                    end = startDate.with(TemporalAdjusters.lastDayOfMonth());
-                }
-                marketDataCrawler.downloadMonthlyBulkCotations(startDate, end);
-                startDate = end.plusDays(1);
-            }
-            long today = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1);
-
-            File[] files = directory.listFiles(f -> f.lastModified() >= today);
-            for (File file : files) {
-                dataReader.readDataFile(file);
+            try {
+                downloadMissingCotations();
+            } catch (Exception e){
+                log.error("Error while downloading missing cotations", e);
             }
         }
 
         // HERE Check if there is missing data for a specific action
+    }
+
+    @Async("singleThreadExecutor")
+    private void downloadMissingCotations() throws InterruptedException {
+        // We catch the missing days of cotation
+        LocalDate startDate = dataReader.getLastDateOfCotation().plusDays(1);
+        LocalDate endDate = LocalDate.now();
+        LocalDate end = endDate;
+        while(startDate.isBefore(endDate)) {
+            log.info("Downloading data for: "+startDate);
+            if(ChronoUnit.DAYS.between(startDate, endDate) > 31) {
+                end = startDate.with(TemporalAdjusters.lastDayOfMonth());
+            }
+            marketDataCrawler.downloadMonthlyBulkCotations(startDate, end);
+            startDate = end.plusDays(1);
+            Thread.sleep(1000);
+        }
+        long today = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1);
+        File directory = new File(properties.getCotationsPath());
+        File[] files = directory.listFiles(f -> f.lastModified() >= today);
+        for (File file : files) {
+            dataReader.readDataFile(file);
+        }
     }
 
     private void getAllHistory() {

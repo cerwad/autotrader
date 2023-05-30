@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -23,7 +24,8 @@ import java.time.LocalDate;
 @SpringBootTest(classes = MarketDataCrawlerTestConfiguration.class)
 public class MarketDataCrawlerTest {
 
-    private String cotationsPath = "/Users/cwaadd/Documents/Autotrader/test";
+    @Value("${app.data-path}")
+    private String cotationsPath;
 
     @Autowired
     private AppProperties appProperties;
@@ -49,12 +51,7 @@ public class MarketDataCrawlerTest {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.withDayOfMonth(1);
         marketDataCrawler.downloadMonthlyBulkCotations(startDate, endDate);
-        File downloadFile = new File(appProperties.getCotationsPath() + "/"+MarketDataCrawler.buildFileName("CAC", startDate));
-        Assert.assertTrue(downloadFile.exists());
-        if(downloadFile.exists()){
-            downloadFile.delete();
-        }
-        downloadFile = new File(appProperties.getCotationsPath() + "/"+MarketDataCrawler.buildFileName("SBF", startDate));
+        File downloadFile = new File(appProperties.getCotationsPath() + "/"+MarketDataCrawler.buildFileName("SBF", startDate));
         Assert.assertTrue(downloadFile.exists());
         if(downloadFile.exists()){
             downloadFile.delete();

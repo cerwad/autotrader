@@ -1,14 +1,11 @@
 package fr.ced.autotrader.algo.baseline;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
 
 
 /**
  * Created by cwaadd on 15/10/2017.
  */
-@Slf4j
 public class BaseLineAnalysis<T extends BaseLine> {
 
     protected double lastPrice;

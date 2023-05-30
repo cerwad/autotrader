@@ -22,7 +22,7 @@ public class MarketDataCrawlerTestConfiguration {
     @Bean
     @Primary
     public MarketDataCrawler marketDataCrawler() {
-        return new MarketDataCrawler();
+        return new MarketDataCrawler(appProperties());
     }
 
     @Bean
