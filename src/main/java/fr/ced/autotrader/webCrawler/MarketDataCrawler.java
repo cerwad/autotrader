@@ -95,10 +95,8 @@ public class MarketDataCrawler {
             // Visit abcBourse.com
             HtmlPage page = webClient.getPage(ABCBOURSE_URL);
 
-            String prefix = null;
             // Select SBF 120 shares contains CAC40
             getFirstCbox(page, SBF120_ID).click();
-            prefix = "SBF";
 
             final HtmlForm form = page.getForms().get(0);
 
@@ -116,7 +114,7 @@ public class MarketDataCrawler {
             DomElement buttonDownload = getDownloadButton(page);
             Page downloadPage = buttonDownload.click();
             WebResponse response = downloadPage.getWebResponse();
-            String fileName = buildFileName(prefix, startDate);
+            String fileName = buildFileName(startDate);
 
             File file = new File(properties.getCotationsPath() + "/" + fileName);
             downloadFile(response, file);
@@ -159,10 +157,6 @@ public class MarketDataCrawler {
     }
 
     public static String buildFileName(LocalDate date){
-        return "Cotations"+date.format(DateTimeFormatter.BASIC_ISO_DATE)+".txt";
-    }
-
-    public static String buildFileName(String prefix, LocalDate date){
-        return prefix + buildFileName(date);
+        return "SBFCotations"+date.format(DateTimeFormatter.BASIC_ISO_DATE)+".txt";
     }
 }

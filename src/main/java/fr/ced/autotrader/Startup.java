@@ -2,6 +2,8 @@ package fr.ced.autotrader;
 
 import fr.ced.autotrader.data.Action;
 import fr.ced.autotrader.data.MarketDataReader;
+import fr.ced.autotrader.data.MissingCotations;
+import fr.ced.autotrader.data.time.MonthInterval;
 import fr.ced.autotrader.webCrawler.MarketDataCrawler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +38,9 @@ public class Startup {
     @Autowired
     private AppProperties properties;
 
+    @Autowired
+    private MissingCotations missingCotations;
+
     @PostConstruct
     private void init() {
         // Shut the hell of htmlUnit
@@ -53,14 +58,14 @@ public class Startup {
         File[] fList = directory.listFiles();
         if (fList == null || fList.length == 0){
             log.error("No data Found");
-            getAllHistory();
+            missingCotations.getAllHistory();
         }
 
         dataReader.loadData();
         LocalDate yesterday = LocalDate.now().minusDays(1);
         if(dataReader.getLastDateOfCotation().isBefore(yesterday) && yesterday.getDayOfWeek() != DayOfWeek.SATURDAY && yesterday.getDayOfWeek() != DayOfWeek.SUNDAY){
             try {
-                downloadMissingCotations();
+                missingCotations.downloadMissingCotations();
             } catch (Exception e){
                 log.error("Error while downloading missing cotations", e);
             }
@@ -69,47 +74,4 @@ public class Startup {
         // HERE Check if there is missing data for a specific action
     }
 
-    @Async("singleThreadExecutor")
-    private void downloadMissingCotations() throws InterruptedException {
-        // We catch the missing days of cotation
-        LocalDate startDate = dataReader.getLastDateOfCotation().plusDays(1);
-        LocalDate endDate = LocalDate.now();
-        LocalDate end = endDate;
-        while(startDate.isBefore(endDate)) {
-            log.info("Downloading data for: "+startDate);
-            if(ChronoUnit.DAYS.between(startDate, endDate) > 31) {
-                end = startDate.with(TemporalAdjusters.lastDayOfMonth());
-            }
-            marketDataCrawler.downloadMonthlyBulkCotations(startDate, end);
-            startDate = end.plusDays(1);
-            Thread.sleep(1000);
-        }
-        long today = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1);
-        File directory = new File(properties.getCotationsPath());
-        File[] files = directory.listFiles(f -> f.lastModified() >= today);
-        for (File file : files) {
-            dataReader.readDataFile(file);
-        }
-    }
-
-    private void getAllHistory() {
-        // Get 5 years history for all actions CAC 40 and SBF 120
-        LocalDate startDate = LocalDate.now().minus(10, ChronoUnit.YEARS);
-        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
-        startDate = startDate.withDayOfMonth(1);
-        LocalDate iterDate = startDate;
-        while (iterDate.isBefore(startOfMonth) || iterDate.isEqual(startOfMonth)){
-            try {
-                LocalDate endDate = iterDate.plus(1, ChronoUnit.MONTHS).minus(1, ChronoUnit.DAYS);
-                if (endDate.isAfter(LocalDate.now())) {
-                    endDate = LocalDate.now();
-                }
-                marketDataCrawler.downloadMonthlyBulkCotations(iterDate, endDate);
-                iterDate = iterDate.plus(1, ChronoUnit.MONTHS);
-                Thread.sleep(1000);
-            } catch (InterruptedException ie){
-                log.error("Thread Interruption", ie);
-            }
-        }
-    }
 }

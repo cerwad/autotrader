@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by cwaadd on 20/09/2017.
@@ -131,8 +128,10 @@ public class QuotesCsvReader implements MarketDataReader{
         File directory = new File(getCsvFilePath());
         //get all the files from a directory
         File[] fList = directory.listFiles();
+
         if(fList != null) {
-            for (File file : fList) {
+            List<File> fileList = Arrays.stream(fList).sorted(Comparator.comparing(File::getName)).toList();
+            for (File file : fileList) {
                 // Ignore csv file because ref File
                 if (Files.getFileExtension(file.getName()).equals(fileExtension)) {
                     System.out.println(file.getName());
