@@ -255,7 +255,7 @@ public class MarketDataComputing {
         double potential = 0;
         if(action.getTrend().isRising()) {
             double mm20 = analyticsTools.getMM20LineData(prices).get(prices.size() - 1).getPrice();
-            double percent = 0.03;
+            double percent = 0;
             if(mm20 > lastPrice.getPrice()){
                 percent = Math.max( (mm20 - lastPrice.getPrice()) / mm20, percent);
             }

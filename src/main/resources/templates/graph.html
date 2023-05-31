@@ -235,8 +235,8 @@
                 <span th:text="|Bourso Mark: ${action.boursoMark}|">Bourso Mark : 1,9</span><br/>
                 <span th:text="|Abc Bourse Mark: ${action.abcMark}|">Abc bourse Mark : 1</span><br/>
                 <span th:text="|Technical Mark: ${action.technicalMark}|">Technical Mark : 1</span><br/>
-                <span th:text="|Potential: ${action.potential*100}% (1m)|">Potential : 20% (1m)</span>
-                <span th:text="|Coef: ${action.coef} |">Coef : 0.5</span>
+                <span th:text="|Potential: ${#numbers.formatDecimal(action.potential*100,1,2)}% (1m)|">Potential : 20% (1m)</span>
+                <span th:text="|Coef: ${#numbers.formatDecimal(action.coef,1,2)} |">Coef : 0.5</span>
             </fieldset>
         </div>
     </div>
