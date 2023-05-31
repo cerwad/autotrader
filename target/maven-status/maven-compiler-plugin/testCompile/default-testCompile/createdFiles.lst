@@ -1,8 +1,0 @@
-fr/ced/autotrader/test/webCrawler/MarketDataCrawlerTest.class
-fr/ced/autotrader/test/algo/baseLine/LineTest.class
-fr/ced/autotrader/test/webCrawler/AbcBourseCrawlerTest.class
-fr/ced/autotrader/test/webCrawler/BoursoCrawlerTest.class
-fr/ced/autotrader/test/MarketDataCrawlerTestConfiguration.class
-fr/ced/autotrader/test/webCrawler/CotationsGatheringTest.class
-fr/ced/autotrader/test/data/MarketDataRepositoryImplTest.class
-fr/ced/autotrader/test/MocksApplication.class
