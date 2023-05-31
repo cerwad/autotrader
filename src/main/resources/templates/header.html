@@ -12,9 +12,9 @@
         </div>
         <ul class="nav navbar-nav">
             <li class="active" th:class="${view == 'index'} ? 'active' : ${#httpServletRequest.getServletPath()}"><a href="/index.html">Home</a></li>
-            <li th:class="${view == 'watchlist'} ? 'active' : 'nope'"><a th:href="@{/watchlist.html}" href="/watchlist.html">Watchlist</a></li>
-            <li th:class="${view == 'highShares'} ? 'active' : ''"><a th:href="@{/highShares.html}" href="/highShares.html">highest shares</a></li>
-            <li th:class="${view == 'graph'} ? 'active' : ''"><a th:href="@{/graph.html}" href="/graph.html">Graphes</a></li>
+            <li th:class="${view == 'watchlist'} ? 'active' : 'nope'"><a th:href="@{/watchlist}" href="/watchlist.html">Watchlist</a></li>
+            <li th:class="${view == 'highShares'} ? 'active' : ''"><a th:href="@{/highShares}" href="/highShares.html">highest shares</a></li>
+            <li th:class="${view == 'graph'} ? 'active' : ''"><a th:href="@{/graph}" href="/graph.html">Graphes</a></li>
         </ul>
         <form action="graph.html" th:attr="action=@{/graph}" class="navbar-form navbar-left">
             <div class="input-group">

@@ -32,7 +32,7 @@
 </div>
 <ul class="list-group" >
     <span th:each="action : ${results}">
-        <a th:href="|/graph.html?actionId=${action.ticker}|" href="/graph.html?actionId=KER">
+        <a th:href="|/graph?actionId=${action.ticker}|" href="/graph.html?actionId=KER">
             <li class="list-group-item list-group-item-success" ><span th:text="|${action.name} (${action.ticker})|">KERING (KER)</span> <span th:text="${#numbers.formatDecimal(action.mark,1,2)}" class="badge">1,0</span> </li>
         </a>
     </span>
