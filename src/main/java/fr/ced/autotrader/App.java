@@ -53,7 +53,7 @@ public class App {
         return appProperties;
     }
 
-    @Bean(initMethod = "init")
+    @Bean
     public MarketDataReader dataReader(AppProperties appProperties) throws FileNotFoundException {
         if(dataPath == null){
             throw new FileNotFoundException("Can't read data path");

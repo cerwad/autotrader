@@ -63,7 +63,7 @@ public class Startup {
 
         dataReader.loadData();
         LocalDate yesterday = LocalDate.now().minusDays(1);
-        if(dataReader.getLastDateOfCotation().isBefore(yesterday) && yesterday.getDayOfWeek() != DayOfWeek.SATURDAY && yesterday.getDayOfWeek() != DayOfWeek.SUNDAY){
+        if(dataReader.getLastDateOfCotation().isBefore(yesterday)){
             try {
                 missingCotations.downloadMissingCotations();
             } catch (Exception e){

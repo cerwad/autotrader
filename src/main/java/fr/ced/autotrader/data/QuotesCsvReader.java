@@ -19,7 +19,7 @@ import java.util.*;
  * Created by cwaadd on 20/09/2017.
  */
 @Slf4j
-public class QuotesCsvReader implements MarketDataReader{
+public class QuotesCsvReader implements MarketDataReader {
 
     private String csvFilePath;
     private File referenceFile;
@@ -119,7 +119,6 @@ public class QuotesCsvReader implements MarketDataReader{
     }
 
 
-
     @Override
     public void loadData() {
 
@@ -129,7 +128,7 @@ public class QuotesCsvReader implements MarketDataReader{
         //get all the files from a directory
         File[] fList = directory.listFiles();
 
-        if(fList != null) {
+        if (fList != null) {
             List<File> fileList = Arrays.stream(fList).sorted(Comparator.comparing(File::getName)).toList();
             for (File file : fileList) {
                 // Ignore csv file because ref File
@@ -147,7 +146,7 @@ public class QuotesCsvReader implements MarketDataReader{
 
     private void readActionFile() {
         l = 0;
-        if(actionDataFile.exists()) {
+        if (actionDataFile.exists()) {
             CharSource charSource = Files.asCharSource(actionDataFile, Charset.defaultCharset());
             try {
                 charSource.forEachLine(this::readActionFileLine);
@@ -158,7 +157,7 @@ public class QuotesCsvReader implements MarketDataReader{
     }
 
 
-    protected void readActionFileLine(String line){
+    protected void readActionFileLine(String line) {
         Splitter splitterOnString = Splitter.on(csvDelimiter);
         Iterable<String> split = splitterOnString.split(line);
         Iterator<String> iter = split.iterator();
@@ -216,7 +215,7 @@ public class QuotesCsvReader implements MarketDataReader{
             }
         }
 
-        if(allQuotesData.getActionMap().containsKey(actionTemp.getIsin())) {
+        if (allQuotesData.getActionMap().containsKey(actionTemp.getIsin())) {
             Action action = allQuotesData.getActionMap().get(actionTemp.getIsin());
             action.fillComputedData(actionTemp);
 
@@ -230,12 +229,12 @@ public class QuotesCsvReader implements MarketDataReader{
         CharSource charSource = Files.asCharSource(file, Charset.defaultCharset());
         try {
             charSource.forEachLine(s -> readDataFileLine(s, file));
-        } catch (IOException ioe){
+        } catch (IOException ioe) {
             log.error("Impossible to read Reference file", ioe);
         }
     }
 
-    protected void readDataFileLine(String line, File file){
+    protected void readDataFileLine(String line, File file) {
         Splitter splitterOnString = Splitter.on(csvDelimiter);
         Iterable<String> split = splitterOnString.split(line);
         Iterator<String> iter = split.iterator();
@@ -247,7 +246,7 @@ public class QuotesCsvReader implements MarketDataReader{
         double maxQuote = 0;
         double closeQuote = 0;
         long volQuote = 0;
-        for (int i = 0; i < dataFileColumns.length ; i++) {
+        for (int i = 0; i < dataFileColumns.length; i++) {
             try {
                 String value = iter.next();
                 if (!value.trim().isEmpty()) {
@@ -278,21 +277,21 @@ public class QuotesCsvReader implements MarketDataReader{
                             break;
                     }
                 } else {
-                    log.warn("empty value for line " + l + " col " + i+ " and file "+file.getName());
+                    log.warn("empty value for line " + l + " col " + i + " and file " + file.getName());
                 }
-            } catch (NumberFormatException e){
-                log.error("Bad format value for line " + l + " col " + i+ " and file "+file.getName());
+            } catch (NumberFormatException e) {
+                log.error("Bad format value for line " + l + " col " + i + " and file " + file.getName());
             }
         }
         // Check if action exists in referential
         boolean actionExists;
-        if(ticker.isEmpty()) {
+        if (ticker.isEmpty()) {
             actionExists = allQuotesData.getActionMap().containsKey(isin);
         } else {
             actionExists = allQuotesData.getActionMap().containsKey(ticker);
         }
 
-        if(actionExists) {
+        if (actionExists) {
             DayQuote dayQuote = new DayQuote();
             if (ticker.isEmpty()) {
                 dayQuote.setId(allQuotesData.getActionMap().get(isin).getTicker());
@@ -305,51 +304,51 @@ public class QuotesCsvReader implements MarketDataReader{
             dayQuote.setMinPrice(minQuote);
             dayQuote.setOpenPrice(openQuote);
             dayQuote.setVolume(volQuote);
-            if(!allQuotesData.getQuotes().containsKey(dayQuote.getId())){
+            if (!allQuotesData.getQuotes().containsKey(dayQuote.getId())) {
                 allQuotesData.getQuotes().put(dayQuote.getId(), new HashMap<>());
             }
             allQuotesData.getQuotes().get(dayQuote.getId()).put(MarketDataReader.STANDARD_DATE_FORMAT.format(date), dayQuote);
-            if(!allQuotesData.getSortedQuotes().containsKey(dayQuote.getId())){
+            if (!allQuotesData.getSortedQuotes().containsKey(dayQuote.getId())) {
                 allQuotesData.getSortedQuotes().put(dayQuote.getId(), new ArrayList<>());
             }
             allQuotesData.getSortedQuotes().get(dayQuote.getId()).add(dayQuote);
             allQuotesData.getSortedQuotes().get(dayQuote.getId()).sort(MarketDataRepository.dateComparator);
 
-            if(lastDateOfCotation == null){
+            if (lastDateOfCotation == null) {
                 lastDateOfCotation = dayQuote.getDate();
-            } else if(lastDateOfCotation.isBefore(dayQuote.getDate())){
+            } else if (lastDateOfCotation.isBefore(dayQuote.getDate())) {
                 lastDateOfCotation = dayQuote.getDate();
             }
         } // else {
-            //log.error("Unknown action "+isin+ticker+" in file "+file.getName());
+        //log.error("Unknown action "+isin+ticker+" in file "+file.getName());
         //}
         //System.out.println("is:"+isin+" line:"+l);
         l++;
     }
 
     @Override
-    public List<Action> readRefFile()  {
+    public List<Action> readRefFile() {
         CharSource charSource = Files.asCharSource(referenceFile, Charset.defaultCharset());
         List<Action> actions = new ArrayList<>();
         try {
             charSource.forEachLine(s -> readRefFileLine(s, actions));
             log.info("Reading reference file successfully");
-        } catch (IOException ioe){
+        } catch (IOException ioe) {
             log.error("Impossible to read Reference file", ioe);
         }
         return actions;
     }
 
-    protected void readRefFileLine(String line, List<Action> actions){
+    protected void readRefFileLine(String line, List<Action> actions) {
         Splitter splitterOnString = Splitter.on(csvDelimiter);
         Iterable<String> split = splitterOnString.split(line);
         Iterator<String> iter = split.iterator();
         String isin = "";
         String name = "";
         String ticker = "";
-        for (int i = 0; i < refFileColumns.length ; i++) {
+        for (int i = 0; i < refFileColumns.length; i++) {
             String value = iter.next();
-            switch (refFileColumns[i]){
+            switch (refFileColumns[i]) {
                 case ISIN:
                     isin = value;
                     break;
@@ -361,7 +360,7 @@ public class QuotesCsvReader implements MarketDataReader{
                     break;
             }
         }
-        if(!ticker.equals("ticker")) {
+        if (!ticker.equals("ticker")) {
             Action action = new Action(isin, name, ticker);
             allQuotesData.getActionMap().put(isin, action);
             allQuotesData.getActionMap().put(ticker, action);
