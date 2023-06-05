@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -207,18 +208,24 @@ public class MarketDataComputing {
      * @param prices
      */
     public void computeTechnicalMark(Action action, List<GraphPoint> prices){
-        double mark = 0;
+        long mark = 0;
         double technicalMark = 5;
-        // General growth /10
-        double coef = action.getSupportAnalysis().getCurrentSupport().getLine().getCoef();
-        if(action.getTrend().isRising() || action.getTrend().isStagnating()) {
-            mark = Math.min(5 + coef * 100, 10);
 
-            // Growth of Resistance /5
-            double mark1 = 0;
-            coef = action.getResistanceAnalysis().getCurrentResistance().getLine().getCoef();
-            if (coef > 0) {
-                mark1 = Math.min(coef * 100, 5);
+        if(action.getTrend().isRising() || action.getTrend().isStagnating()) {
+            // Top Mark = 100 points then converted to /5
+            // Support growth /10
+            double coef = action.getSupportAnalysis().getCurrentSupport().getLine().getCoef();
+            mark = coef < 0 ? 0 : Math.min(Math.round(coef * 10), 10);
+
+            // MM20 growth /40
+            List<GraphPoint> mm20 = analyticsTools.getMM20LineData(prices);
+            BigDecimal mmCoef = analyticsTools.findLastCoef(mm20);
+            long mmMark = mmCoef.doubleValue() < 0 ? 0 : Math.min(Math.round(mmCoef.doubleValue() * 10), 10) * 40;
+
+            // Above MM20 /20
+            long aboveMm = 0;
+            if(prices.get(prices.size()-1).getPrice() > mm20.get(mm20.size()-1).getPrice()){
+                aboveMm = 20;
             }
 
             // Near Support /10
@@ -227,29 +234,38 @@ public class MarketDataComputing {
             double bottomPrice = action.getSupportAnalysis().getCurrentSupport().getLine().getGraphPrice(lastPrice.getLocalDate());
             double price = lastPrice.getPrice();
             double mark2 = (price - bottomPrice) / price * 100;
-            if (mark2 < 0 || mark2 > 10) {
-                mark2 = 10;
-            }
-            mark2 = 10 - mark2;
+            mark2 = mark2 < 0 ? 0 : mark2;
+            mark2 = mark2 > 10 ? 10 : mark2;
 
-            // Strength of support / 5
+            // Strength of support / 10
             int mark3 = action.getSupportAnalysis().getCurrentSupport().getStrength();
-            mark3 = Math.min(mark3, 5);
+            mark3 = Math.min(mark3, 5)*2;
 
             // Potential / 10
             // Should be calculated with the estimated reaping time
             double mark4 = 0;
             double potential = computePotential(action, prices);
-            mark4 = potential * 10;
+            mark4 = Math.min(Math.round(potential * 10), 10);
+            if(mark4 < 0){
+                mark4 = 0;
+            }
 
-            technicalMark = (float) (mark + mark1 + mark2 + mark3 + mark4) / 8;
-            technicalMark = Formatter.round2Digits(technicalMark);
+            technicalMark = (mark + mmMark + aboveMm + mark2 + mark3 + mark4) / 20;
             technicalMark = Math.min(6 - technicalMark, 5);
+            if(technicalMark <= 0){
+                technicalMark = 5;
+            }
         }
         action.setTechnicalMark(technicalMark);
 
     }
 
+    /**
+     * Probablement revoir ça en ne prenant en compte que la résistance
+     * @param action
+     * @param prices
+     * @return
+     */
     public double computePotential(Action action, List<GraphPoint> prices){
         GraphPoint lastPrice = prices.get(prices.size() - 1);
         double potential = 0;

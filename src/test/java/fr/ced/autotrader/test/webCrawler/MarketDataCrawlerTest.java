@@ -51,7 +51,7 @@ public class MarketDataCrawlerTest {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.withDayOfMonth(1);
         marketDataCrawler.downloadMonthlyBulkCotations(startDate, endDate);
-        File downloadFile = new File(appProperties.getCotationsPath() + "/"+MarketDataCrawler.buildFileName("SBF", startDate));
+        File downloadFile = new File(appProperties.getCotationsPath() + "/"+MarketDataCrawler.buildFileName(startDate));
         Assert.assertTrue(downloadFile.exists());
         if(downloadFile.exists()){
             //downloadFile.delete();

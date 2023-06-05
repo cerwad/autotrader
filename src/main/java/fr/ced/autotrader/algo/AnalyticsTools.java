@@ -8,6 +8,7 @@ import fr.ced.autotrader.algo.moyenne.MoyenneExpoDouble;
 import fr.ced.autotrader.algo.moyenne.MoyenneMobile;
 import fr.ced.autotrader.data.GraphPoint;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -352,6 +353,11 @@ public class AnalyticsTools {
         return min;
     }
 
+    public BigDecimal findLastCoef(List<GraphPoint> prices){
+        GraphPoint lastPoint = prices.get(prices.size()-1);
+        GraphPoint beforeLast = prices.get(prices.size()-2);
+        return beforeLast.calculateCoef(lastPoint);
+    }
 
     public List<GraphPoint> getDEMA20LineData(List<GraphPoint> listAll) {
         MoyenneExpoDouble moyenneExpoDouble = new MoyenneExpoDouble(listAll);

@@ -4,6 +4,7 @@ import fr.ced.autotrader.data.GraphPoint;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,10 +33,9 @@ public class Line {
 
         this.firstDate = firstDate;
 
-        long nbDays = DAYS.between(this.p1.getLocalDate(), this.p2.getLocalDate());
-        coef = new BigDecimal(this.p2.getPrice() - this.p1.getPrice()).divide(new BigDecimal(nbDays), 10, BigDecimal.ROUND_HALF_UP);
-        nbDays = DAYS.between(firstDate, this.p1.getLocalDate());
-        offset = new BigDecimal(this.p1.getPrice()).subtract(coef.multiply(new BigDecimal(nbDays)));
+        coef = p1.calculateCoef(p2);
+        long nbDays = DAYS.between(firstDate, this.p1.getLocalDate());
+        offset = BigDecimal.valueOf(this.p1.getPrice()).subtract(coef.multiply(new BigDecimal(nbDays)));
     }
 
     public double getCoef() {

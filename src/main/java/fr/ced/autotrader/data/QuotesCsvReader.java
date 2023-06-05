@@ -25,10 +25,10 @@ public class QuotesCsvReader implements MarketDataReader{
     private File referenceFile;
     private String fileExtension;
     private String csvDelimiter;
-    private AllQuotesData allQuotesData;
+    private final AllQuotesData allQuotesData;
     private RefCol[] refFileColumns;
     private QuotesCol[] dataFileColumns;
-    private DateTimeFormatter dTF = DateTimeFormatter.ofPattern("dd/MM/uu");
+    private final DateTimeFormatter dTF = DateTimeFormatter.ofPattern("dd/MM/uu");
     private File actionDataFile;
     private String dbFilePath;
     private ActionCol[] actionCols;
@@ -36,6 +36,13 @@ public class QuotesCsvReader implements MarketDataReader{
 
     protected int l = 0;
 
+    public QuotesCsvReader() {
+        allQuotesData = new AllQuotesData();
+        allQuotesData.setActionMap(new HashMap<>());
+        allQuotesData.setQuotes(new HashMap<>());
+        allQuotesData.setSortedQuotes(new HashMap<>());
+
+    }
 
     public void setRefFileColumns(RefCol[] refFileColumns) {
         this.refFileColumns = refFileColumns;
@@ -111,13 +118,6 @@ public class QuotesCsvReader implements MarketDataReader{
         return lastDateOfCotation;
     }
 
-    private void init(){
-        // Initialize big storing object
-        allQuotesData = new AllQuotesData();
-        allQuotesData.setActionMap(new HashMap<>());
-        allQuotesData.setQuotes(new HashMap<>());
-        allQuotesData.setSortedQuotes(new HashMap<>());
-    }
 
 
     @Override
@@ -163,10 +163,10 @@ public class QuotesCsvReader implements MarketDataReader{
         Iterable<String> split = splitterOnString.split(line);
         Iterator<String> iter = split.iterator();
         Action actionTemp = new Action();
-        for (int i = 0; i < actionCols.length ; i++) {
+        for (ActionCol actionCol : actionCols) {
             String value = iter.next().trim();
             try {
-                switch (actionCols[i]) {
+                switch (actionCol) {
                     case ISIN:
                         actionTemp.setIsin(value);
                         break;
@@ -175,9 +175,9 @@ public class QuotesCsvReader implements MarketDataReader{
                         break;
                     case ABCMARK:
                         Double abcMark = null;
-                        if(!"null".equals(value)) {
+                        if (!"null".equals(value)) {
                             abcMark = Double.parseDouble(value);
-                            if(abcMark == 0){
+                            if (abcMark == 0) {
                                 abcMark = null;
                             }
                         }
@@ -185,9 +185,9 @@ public class QuotesCsvReader implements MarketDataReader{
                         break;
                     case BOURSOMARK:
                         Double boursoMark = null;
-                        if(!"null".equals(value)){
+                        if (!"null".equals(value)) {
                             boursoMark = Double.parseDouble(value);
-                            if(boursoMark == 0){
+                            if (boursoMark == 0) {
                                 boursoMark = null;
                             }
                         }
@@ -195,9 +195,9 @@ public class QuotesCsvReader implements MarketDataReader{
                         break;
                     case MORNINGSTARMARK:
                         Double morningStarMark = null;
-                        if(!"null".equals(value)){
+                        if (!"null".equals(value)) {
                             morningStarMark = Double.parseDouble(value);
-                            if(morningStarMark == 0){
+                            if (morningStarMark == 0) {
                                 morningStarMark = null;
                             }
                         }
@@ -205,14 +205,14 @@ public class QuotesCsvReader implements MarketDataReader{
                         break;
                     case GLOBALMARK:
                         Double globalMark = null;
-                        if(!"null".equals(value)) {
+                        if (!"null".equals(value)) {
                             globalMark = Double.parseDouble(value);
                         }
                         actionTemp.setGlobalMark(globalMark);
                         break;
                 }
-            } catch (NumberFormatException ne){
-                log.error("Could not read value "+value, ne);
+            } catch (NumberFormatException ne) {
+                log.error("Could not read value " + value, ne);
             }
         }
 

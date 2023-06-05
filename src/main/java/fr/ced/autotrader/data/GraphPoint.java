@@ -1,7 +1,11 @@
 package fr.ced.autotrader.data;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 
 /**
@@ -48,6 +52,11 @@ public class GraphPoint {
         this.date = date;
     }
 
+    public BigDecimal calculateCoef(GraphPoint p2){
+        long nbDays = DAYS.between(this.getLocalDate(), p2.getLocalDate());
+        return BigDecimal.valueOf(p2.getPrice() - getPrice()).divide(new BigDecimal(nbDays), 10, RoundingMode.HALF_UP);
+
+    }
     @Override
     public String toString() {
         return "GraphPoint{" +date+":"+Formatter.round2Digits(price)+'}';
