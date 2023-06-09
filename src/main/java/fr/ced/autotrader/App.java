@@ -43,7 +43,15 @@ public class App {
         return executor;
     }
     @Bean
-    public AppProperties appProperties(){
+    public AppProperties appProperties() throws FileNotFoundException {
+        if(dataPath == null){
+            throw new FileNotFoundException("Can't read data path");
+        }
+        Path path = Path.of(dataPath);
+        if(!Files.exists(path)){
+            throw new FileNotFoundException("Data folder does not exist or is unreachable: "+dataPath);
+        }
+
         AppProperties appProperties = new AppProperties();
         appProperties.setCsvDelimiter(csvDelimiter);
         appProperties.setBasePath(dataPath);
@@ -54,15 +62,8 @@ public class App {
     }
 
     @Bean
-    public MarketDataReader dataReader(AppProperties appProperties) throws FileNotFoundException {
-        if(dataPath == null){
-            throw new FileNotFoundException("Can't read data path");
-        }
-        Path path = Path.of(dataPath);
-        if(!Files.exists(path)){
-            throw new FileNotFoundException("Data folder does not exist or is unreachable: "+dataPath);
-        }
-        QuotesCsvReader reader = new QuotesCsvReader();
+    public MarketDataReader dataReader(AppProperties appProperties, AllQuotesData allQuotesData) {
+        QuotesCsvReader reader = new QuotesCsvReader(allQuotesData);
         reader.setCsvFilePath(appProperties.getCotationsPath());
         File refFile = new File(appProperties.getDbFilepath()+"/libelles.csv");
         reader.setReferenceFile(refFile);
@@ -80,9 +81,9 @@ public class App {
         return reader;
     }
 
-    @Bean(initMethod = "init")
-    public MarketDataRepository dataRepository(MarketDataReader dataReader, ThreadPoolTaskExecutor taskExecutor){
-        return new MarketDataRepositoryImpl(dataReader, taskExecutor);
+    @Bean
+    public MarketDataRepository dataRepository(AllQuotesData allQuotesData){
+        return new MarketDataRepositoryImpl(allQuotesData);
     }
 
     @Bean
@@ -95,7 +96,7 @@ public class App {
     }
 
     @Bean
-    public ActionDataCsvWriter getActionDataCsvWriter(){
+    public ActionDataCsvWriter getActionDataCsvWriter() throws FileNotFoundException {
         ActionDataCsvWriter actionDataCsvWriter = new ActionDataCsvWriter();
         actionDataCsvWriter.setActionFile(appProperties().getActionFile());
         actionDataCsvWriter.setActionCols(cols);

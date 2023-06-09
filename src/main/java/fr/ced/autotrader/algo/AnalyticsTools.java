@@ -359,6 +359,22 @@ public class AnalyticsTools {
         return beforeLast.calculateCoef(lastPoint);
     }
 
+    public BigDecimal findLastMM20Coef(List<GraphPoint> prices){
+        List<GraphPoint> mm20 = getMM20LineData(prices);
+        GraphPoint lastPoint = mm20.get(prices.size()-1);
+        GraphPoint beforeLast = mm20.get(prices.size()-2);
+        return beforeLast.calculateCoef(lastPoint);
+    }
+    public double findFuturePrice(List<GraphPoint> prices, int nbMonths){
+        List<GraphPoint> mm20 = getMM20LineData(prices);
+        double coef = findLastCoef(mm20).doubleValue();
+        return mm20.get(mm20.size()-1).getPrice() + coef * nbMonths * 30;
+    }
+
+    public double findLastCoefPercent(List<GraphPoint> prices){
+        GraphPoint lastPoint = prices.get(prices.size()-1);
+        return findLastCoef(prices).doubleValue() * 30 / lastPoint.getPrice() * 100;
+    }
     public List<GraphPoint> getDEMA20LineData(List<GraphPoint> listAll) {
         MoyenneExpoDouble moyenneExpoDouble = new MoyenneExpoDouble(listAll);
         return moyenneExpoDouble.getLineData(20);

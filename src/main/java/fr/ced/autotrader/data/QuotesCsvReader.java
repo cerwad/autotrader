@@ -6,7 +6,9 @@ import com.google.common.io.Files;
 import fr.ced.autotrader.data.csv.columns.ActionCol;
 import fr.ced.autotrader.data.csv.columns.QuotesCol;
 import fr.ced.autotrader.data.csv.columns.RefCol;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import java.util.*;
  * Created by cwaadd on 20/09/2017.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class QuotesCsvReader implements MarketDataReader {
 
     private String csvFilePath;
@@ -36,13 +39,6 @@ public class QuotesCsvReader implements MarketDataReader {
 
     protected int l = 0;
 
-    public QuotesCsvReader() {
-        allQuotesData = new AllQuotesData();
-        allQuotesData.setActionMap(new HashMap<>());
-        allQuotesData.setQuotes(new HashMap<>());
-        allQuotesData.setSortedQuotes(new HashMap<>());
-
-    }
 
     public void setRefFileColumns(RefCol[] refFileColumns) {
         this.refFileColumns = refFileColumns;

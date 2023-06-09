@@ -15,15 +15,14 @@ import java.util.*;
 
 public class MarketDataRepositoryImplTest {
 
-    private MarketDataRepositoryImpl dataRepository = new MarketDataRepositoryImpl(new QuotesCsvReader(), null);
+    private MarketDataRepositoryImpl dataRepository;
 
     @Before
     public void init(){
+
         AllQuotesData allQuotesData = new AllQuotesData();
-        allQuotesData.setActionMap(new HashMap<>());
-        allQuotesData.setQuotes(new HashMap<>());
-        allQuotesData.setSortedQuotes(new HashMap<>());
-        
+        dataRepository = new MarketDataRepositoryImpl(allQuotesData);
+
         String wendelKey = "MF";
         String havasKey = "HAV";
 
@@ -131,8 +130,6 @@ public class MarketDataRepositoryImplTest {
         sortedQuotes.add(d1);
         sortedQuotes.add(d2);
         allQuotesData.getSortedQuotes().put(havasKey, sortedQuotes);
-
-        dataRepository.setAllQuotesData(allQuotesData);
     }
 
     @Test

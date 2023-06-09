@@ -3,12 +3,12 @@ package fr.ced.autotrader.data;
 import fr.ced.autotrader.algo.AnalyticsTools;
 import fr.ced.autotrader.algo.ComputingException;
 import fr.ced.autotrader.algo.baseline.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -22,16 +22,16 @@ import java.util.Optional;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MarketDataComputing {
     private boolean firstComputation = false;
 
     @Autowired
     private ActionDataCsvWriter actionDataCsvWriter;
 
-    @Autowired
-    private MarketDataRepository marketDataRepository;
+    private final MarketDataRepository marketDataRepository;
 
-    private AnalyticsTools analyticsTools = new AnalyticsTools();
+    private final AnalyticsTools analyticsTools = new AnalyticsTools();
 
     @Scheduled(fixedDelay = 600000, initialDelay = 12000)
     public void computeMarketDataTask(){
@@ -58,6 +58,7 @@ public class MarketDataComputing {
                 setTrend(action, prices);
                 computeTechnicalMark(action, prices);
                 computeGlobalMark(action);
+                action.setPotential(computeShortPotential(prices));
                 Optional<DayQuote> quote = marketDataRepository.getLastQuoteFromAction(action.getTicker());
                 quote.ifPresent(dayQuote -> action.setLastPrice(dayQuote.getClosePrice()));
             } else {
@@ -86,7 +87,7 @@ public class MarketDataComputing {
             techMark = 0d;
         }
         if(nbP > 0){
-            Double globalMark = (abcMark + boursoMark + techMark)/nbP;
+            double globalMark = (abcMark + boursoMark + techMark)/nbP;
             action.setGlobalMark(Formatter.round2Digits(globalMark));
         }
     }
@@ -219,8 +220,8 @@ public class MarketDataComputing {
 
             // MM20 growth /40
             List<GraphPoint> mm20 = analyticsTools.getMM20LineData(prices);
-            BigDecimal mmCoef = analyticsTools.findLastCoef(mm20);
-            long mmMark = mmCoef.doubleValue() < 0 ? 0 : Math.min(Math.round(mmCoef.doubleValue() * 10), 10) * 40;
+            double mmCoef = analyticsTools.findLastCoefPercent(mm20);
+            long mmMark = mmCoef < 0 ? 0 : Math.min(Math.round(mmCoef), 10) * 40;
 
             // Above MM20 /20
             long aboveMm = 0;
@@ -244,8 +245,8 @@ public class MarketDataComputing {
             // Potential / 10
             // Should be calculated with the estimated reaping time
             double mark4 = 0;
-            double potential = computePotential(action, prices);
-            mark4 = Math.min(Math.round(potential * 10), 10);
+            double potential = computeShortPotential(prices);
+            mark4 = Math.min(Math.round(potential), 10);
             if(mark4 < 0){
                 mark4 = 0;
             }
@@ -262,33 +263,27 @@ public class MarketDataComputing {
 
     /**
      * Probablement revoir ça en ne prenant en compte que la résistance
-     * @param action
      * @param prices
      * @return
      */
-    public double computePotential(Action action, List<GraphPoint> prices){
+    public double computeShortPotential(List<GraphPoint> prices){
         GraphPoint lastPrice = prices.get(prices.size() - 1);
         double potential = 0;
-        if(action.getTrend().isRising()) {
-            double mm20 = analyticsTools.getMM20LineData(prices).get(prices.size() - 1).getPrice();
-            double percent = 0;
-            if(mm20 > lastPrice.getPrice()){
-                percent = Math.max( (mm20 - lastPrice.getPrice()) / mm20, percent);
-            }
-            double upperPrice = action.getSupportAnalysis().getCurrentSupport().getLine().getGraphPrice(lastPrice.getLocalDate().plus(1, ChronoUnit.MONTHS));
-            upperPrice = upperPrice + upperPrice*percent;
-            LocalDate from = LocalDate.now().minus(6, ChronoUnit.MONTHS);
-            LocalDate to = LocalDate.now().minus(1, ChronoUnit.MONTHS);
-            double max = analyticsTools.findMaxPrice(prices, from, to);
-            upperPrice = Math.min(max, upperPrice);
 
-            potential = (upperPrice - lastPrice.getPrice()) / lastPrice.getPrice();
-            if (potential < 0) {
-                potential = 0;
-            } else {
-                action.setPotential(Formatter.round2Digits(potential));
+        double coef = analyticsTools.findLastMM20Coef(prices).doubleValue();
+        if(coef > 0){
+            LocalDate from = LocalDate.now().minus(12, ChronoUnit.MONTHS);
+            LocalDate to = LocalDate.now().minus(1, ChronoUnit.DAYS);
+            double max = analyticsTools.findMaxPrice(prices, from, to);
+            double futurePrice = analyticsTools.findFuturePrice(prices, 1);
+            if(max > futurePrice) {
+                futurePrice = Math.min(max, futurePrice);
+            }
+            if(futurePrice > lastPrice.getPrice()) {
+                potential = (futurePrice - lastPrice.getPrice()) / lastPrice.getPrice();
             }
         }
-        return potential;
+
+        return potential * 100;
     }
 }
