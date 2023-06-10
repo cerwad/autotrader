@@ -9,6 +9,12 @@ import java.util.*;
 public interface MarketDataRepository {
 
     Set<Action> getAllActions();
+
+    /**
+     * Get action from ticker
+     * @param id
+     * @return action
+     */
     Action getActionFromId(String id);
 
     /**

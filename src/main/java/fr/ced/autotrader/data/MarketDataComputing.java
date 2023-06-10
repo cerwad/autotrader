@@ -56,9 +56,12 @@ public class MarketDataComputing {
                 computeResistances(action);
                 computeSupports(action);
                 setTrend(action, prices);
-                computeTechnicalMark(action, prices);
+                long techMark = computeTechnicalMark(action, prices);
+                action.setTechnicalMark( 6 - ((double) techMark / 20));
+
                 computeGlobalMark(action);
                 action.setPotential(computeShortPotential(prices));
+                action.setCoef(analyticsTools.findLastCoef(analyticsTools.getMM20LineData(prices)).doubleValue());
                 Optional<DayQuote> quote = marketDataRepository.getLastQuoteFromAction(action.getTicker());
                 quote.ifPresent(dayQuote -> action.setLastPrice(dayQuote.getClosePrice()));
             } else {
@@ -187,7 +190,6 @@ public class MarketDataComputing {
     public void setTrend(Action action, List<GraphPoint> points){
         Trend trend = new Trend(points);
         double coef = action.getSupportAnalysis().getCurrentSupport().getLine().getCoef();
-        action.setCoef(Formatter.round4Digits(coef));
         double perc = coef / points.get(points.size() - 1).getPrice();
         if(perc < -0.001) {
             trend.setTendency(Tendency.LOW);
@@ -208,9 +210,9 @@ public class MarketDataComputing {
      * @param action
      * @param prices
      */
-    public void computeTechnicalMark(Action action, List<GraphPoint> prices){
+    public long computeTechnicalMark(Action action, List<GraphPoint> prices){
         long mark = 0;
-        double technicalMark = 5;
+        long technicalMark = 0;
 
         if(action.getTrend().isRising() || action.getTrend().isStagnating()) {
             // Top Mark = 100 points then converted to /5
@@ -221,7 +223,7 @@ public class MarketDataComputing {
             // MM20 growth /40
             List<GraphPoint> mm20 = analyticsTools.getMM20LineData(prices);
             double mmCoef = analyticsTools.findLastCoefPercent(mm20);
-            long mmMark = mmCoef < 0 ? 0 : Math.min(Math.round(mmCoef), 10) * 40;
+            long mmMark = mmCoef < 0 ? 0 : Math.min(Math.round(mmCoef), 10) * 4;
 
             // Above MM20 /20
             long aboveMm = 0;
@@ -234,7 +236,7 @@ public class MarketDataComputing {
             // Attention ! Problème ici le prix n'est pas bon
             double bottomPrice = action.getSupportAnalysis().getCurrentSupport().getLine().getGraphPrice(lastPrice.getLocalDate());
             double price = lastPrice.getPrice();
-            double mark2 = (price - bottomPrice) / price * 100;
+            long mark2 = Math.round((price - bottomPrice) / price * 100);
             mark2 = mark2 < 0 ? 0 : mark2;
             mark2 = mark2 > 10 ? 10 : mark2;
 
@@ -244,27 +246,23 @@ public class MarketDataComputing {
 
             // Potential / 10
             // Should be calculated with the estimated reaping time
-            double mark4 = 0;
+            long mark4 = 0;
             double potential = computeShortPotential(prices);
             mark4 = Math.min(Math.round(potential), 10);
             if(mark4 < 0){
                 mark4 = 0;
             }
 
-            technicalMark = (mark + mmMark + aboveMm + mark2 + mark3 + mark4) / 20;
-            technicalMark = Math.min(6 - technicalMark, 5);
-            if(technicalMark <= 0){
-                technicalMark = 5;
-            }
+            technicalMark = mark + mmMark + aboveMm + mark2 + mark3 + mark4;
         }
-        action.setTechnicalMark(technicalMark);
+        return technicalMark;
 
     }
 
     /**
      * Probablement revoir ça en ne prenant en compte que la résistance
      * @param prices
-     * @return
+     * @return short term potential
      */
     public double computeShortPotential(List<GraphPoint> prices){
         GraphPoint lastPrice = prices.get(prices.size() - 1);
@@ -276,8 +274,8 @@ public class MarketDataComputing {
             LocalDate to = LocalDate.now().minus(1, ChronoUnit.DAYS);
             double max = analyticsTools.findMaxPrice(prices, from, to);
             double futurePrice = analyticsTools.findFuturePrice(prices, 1);
-            if(max > futurePrice) {
-                futurePrice = Math.min(max, futurePrice);
+            if(futurePrice > max) {
+                futurePrice = max;
             }
             if(futurePrice > lastPrice.getPrice()) {
                 potential = (futurePrice - lastPrice.getPrice()) / lastPrice.getPrice();

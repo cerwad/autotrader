@@ -368,7 +368,7 @@ public class AnalyticsTools {
     public double findFuturePrice(List<GraphPoint> prices, int nbMonths){
         List<GraphPoint> mm20 = getMM20LineData(prices);
         double coef = findLastCoef(mm20).doubleValue();
-        return mm20.get(mm20.size()-1).getPrice() + coef * nbMonths * 30;
+        return mm20.get(mm20.size()-1).getPrice() + (coef * nbMonths * 30);
     }
 
     public double findLastCoefPercent(List<GraphPoint> prices){
