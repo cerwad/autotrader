@@ -30,9 +30,6 @@ public class App {
         SpringApplication.run(App.class, args);
     }
 
-    @Autowired
-    @Value("${app.data-path}")
-    private String dataPath;
     private final ActionCol[] cols = {ActionCol.ISIN, ActionCol.DATE, ActionCol.ABCMARK, ActionCol.BOURSOMARK, ActionCol.MORNINGSTARMARK, ActionCol.GLOBALMARK};
     private final String csvDelimiter = ";";
 
@@ -44,6 +41,7 @@ public class App {
     }
     @Bean
     public AppProperties appProperties() throws FileNotFoundException {
+        String dataPath = System.getenv("DATADIR");
         if(dataPath == null){
             throw new FileNotFoundException("Can't read data path");
         }
@@ -58,6 +56,7 @@ public class App {
         appProperties.setDbFilepath(dataPath+"/dbFiles/");
         appProperties.setActionFile(new File(appProperties.getDbFilepath()+"/actionFile.csv"));
         appProperties.setCotationsPath(dataPath+"/cotations");
+        appProperties.setIntradayPath(dataPath+"/intraday");
         return appProperties;
     }
 

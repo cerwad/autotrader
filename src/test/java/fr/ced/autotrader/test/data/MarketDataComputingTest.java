@@ -5,47 +5,44 @@ import fr.ced.autotrader.data.*;
 import fr.ced.autotrader.data.csv.columns.QuotesCol;
 import fr.ced.autotrader.data.csv.columns.RefCol;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 public class MarketDataComputingTest {
 
-    AllQuotesData allData = new AllQuotesData();
-    MarketDataReader reader;
-    MarketDataRepository marketDataRepository;
+    private static AllQuotesData allData = new AllQuotesData();
+    private static MarketDataReader reader;
+    private static MarketDataRepository marketDataRepository;
 
-    MarketDataComputing marketDataComputing;
+    private static MarketDataComputing marketDataComputing;
 
-    AnalyticsTools analyticsTools = new AnalyticsTools();
+    private static AnalyticsTools analyticsTools = new AnalyticsTools();
 
-    @Before
-    public void init() throws URISyntaxException {
+    @BeforeAll
+    public static void init() throws URISyntaxException {
         reader = buildReader(allData);
         allData.getActionMap().put("FR0000121014", new Action("FR0000121014", "LVMH", "MC"));
-        URL resource = getClass().getClassLoader().getResource("Cotations20210601.txt");
+        URL resource = MarketDataComputingTest.class.getClassLoader().getResource("Cotations20210601.txt");
         if (resource != null) {
             reader.readDataFile(new File(resource.toURI()));
         }
         Action st = new Action("NL0000226223", "STMICROELECTRONICS", "STMPA");
         allData.getActionMap().put("NL0000226223", st);
-        resource = getClass().getClassLoader().getResource("Cotations20210614.txt");
+        resource = MarketDataComputingTest.class.getClassLoader().getResource("Cotations20210614.txt");
         if (resource != null) {
             reader.readDataFile(new File(resource.toURI()));
         }
         marketDataRepository = new MarketDataRepositoryImpl(allData);
-        marketDataComputing = new MarketDataComputing(marketDataRepository);
+        marketDataComputing = new MarketDataComputing(marketDataRepository, new IntraDayCotations(reader, null));
 
         List<GraphPoint> prices = marketDataRepository.getAllGraphData(st.getTicker());
         if(prices != null && !prices.isEmpty()) {
@@ -89,7 +86,7 @@ public class MarketDataComputingTest {
         assertEquals(88, techMark);
     }
 
-    public MarketDataReader buildReader(AllQuotesData allData) {
+    public static MarketDataReader buildReader(AllQuotesData allData) {
         QuotesCsvReader reader = new QuotesCsvReader(allData);
         reader.setFileExtension("txt");
         reader.setCsvDelimiter(";");

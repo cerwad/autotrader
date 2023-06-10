@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.*;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -26,72 +27,78 @@ import java.time.temporal.ChronoUnit;
 public class MarketDataCrawler {
     public static final String INPUT_XPATH = "//input[@value='%s']";
     public static final String ABCBOURSE_URL = "https://www.abcbourse.com/download/historiques.aspx";
+    public static final String ABCBOURSE_INTRADAY = "https://www.abcbourse.com/download/telechargement_intraday";
     private final AppProperties properties;
 
     public final static String CAC40_ID = "xcac40p";
     public final static String SBF120_ID = "xsbf120p";
 
+    public final static String EXCEL = "ex";
+
     /**
      * Download today's cotations for all shares
      */
-    public void downloadCurrentCotations(){
+    public File downloadCurrentCotations(){
+        File file = null;
+        if(isWeekDay()) {
+            try {
+                WebClient webClient = getWebClient();
+                // Visit abcBourse.com
+                HtmlPage page = webClient.getPage(ABCBOURSE_INTRADAY);
 
-        try {
-            WebClient webClient = getWebClient();
-            // Visit abcBourse.com
-            HtmlPage page = webClient.getPage(ABCBOURSE_URL);
+                // Find page title
+                DomNodeList<DomElement> elements = page.getElementsByTagName("h1");
+                Asserts.notNull(elements, "Must have a title");
+                Asserts.check(elements.size() == 1, "Must be only one title");
+                DomElement element = elements.get(0);
 
-            // Find page title
-            DomNodeList<DomElement> elements = page.getElementsByTagName("h1");
-            Asserts.notNull(elements, "Must have a title");
-            Asserts.check(elements.size() == 1, "Must be only one title");
-            DomElement element = elements.get(0);
+                System.out.println(element.getTextContent());
+                Asserts.check("Téléchargement en cours de séance".equals(element.getTextContent()), "Title must be Téléchargement en cours de séance");
 
-            System.out.println(element.getTextContent());
-            Asserts.check("Téléchargement des cotations".equals(element.getTextContent()), "Title must be Téléchargement des cotations");
+                // Select csv format
+                getFirstCbox(page, EXCEL).click();
 
-            // Select CAC40 shares
-            DomElement cboxCac = getFirstCbox(page, CAC40_ID);
-            cboxCac.click();
+                // Select SBF 120 shares
+                DomElement cboxSbf = getFirstCbox(page, SBF120_ID);
+                cboxSbf.click();
 
-            // Select SBF 120 shares
-            DomElement cboxSbf = getFirstCbox(page, SBF120_ID);
-            cboxSbf.click();
+                // Click on download Button
+                DomElement buttonDownload = getDownloadButton(page);
+                Page downloadPage = buttonDownload.click();
+                WebResponse response = downloadPage.getWebResponse();
+                LocalDate now = LocalDate.now();
+                String fileName = buildIntraFileName(now);
 
-            // Click on download Button
-            DomElement buttonDownload = getDownloadButton(page);
-            Page downloadPage = buttonDownload.click();
-            WebResponse response = downloadPage.getWebResponse();
-            LocalDate now = LocalDate.now();
-            String fileName = buildFileName(now);
+                file = new File(properties.getIntradayPath() + "/" + fileName);
+                downloadFile(response, file);
 
-            File file = new File(properties.getCotationsPath()+"/"+fileName);
-            downloadFile(response, file);
-
-
-        } catch (IOException ioe){
-            log.error("Impossible to connect to abcbourse website and download the cotations of this day", ioe);
+            } catch (IOException ioe) {
+                log.error("Impossible to connect to abcbourse website and download the intraday cotations", ioe);
+            }
         }
+        return file;
     }
 
+    public boolean isWeekDay(){
+        return LocalDate.now().getDayOfWeek() != DayOfWeek.SATURDAY && LocalDate.now().getDayOfWeek() != DayOfWeek.SUNDAY;
+    }
     public static DomElement getFirstCbox(HtmlPage page, String id) {
         return page.getFirstByXPath(String.format(INPUT_XPATH, id));
     }
 
-    public void downloadMonthlyBulkCotations(LocalDate startDate, LocalDate endDate){
+    public File downloadMonthlyBulkCotations(LocalDate startDate, LocalDate endDate){
 
 
         Assert.isTrue(endDate.isAfter(startDate) && ChronoUnit.DAYS.between(startDate, endDate) < 32, "The duration must not exceed 1 month");
         WebClient webClient = getWebClient();
 
         log.info("Downloading cotations from "+startDate+" to "+endDate);
-        downloadMonthlyBulkCotations(startDate, endDate, webClient);
+        return downloadMonthlyBulkCotations(startDate, endDate, webClient);
     }
 
-    private void downloadMonthlyBulkCotations(LocalDate startDate, LocalDate endDate, WebClient webClient){
-
+    private File downloadMonthlyBulkCotations(LocalDate startDate, LocalDate endDate, WebClient webClient){
+        File downloadFile = null;
         try {
-
             // Visit abcBourse.com
             HtmlPage page = webClient.getPage(ABCBOURSE_URL);
 
@@ -116,12 +123,13 @@ public class MarketDataCrawler {
             WebResponse response = downloadPage.getWebResponse();
             String fileName = buildFileName(startDate);
 
-            File file = new File(properties.getCotationsPath() + "/" + fileName);
-            downloadFile(response, file);
+            downloadFile = new File(properties.getCotationsPath() + "/" + fileName);
+            downloadFile(response, downloadFile);
             log.info("Downloading file "+fileName);
         } catch (IOException ioe){
-            log.error("Impossible to connect to abcbourse website and download cotations between "+ startDate.format(DateTimeFormatter.BASIC_ISO_DATE) + " and "+ endDate.format(DateTimeFormatter.BASIC_ISO_DATE));
+            log.error("Impossible to connect to abcbourse website and download cotations between "+ startDate.format(DateTimeFormatter.BASIC_ISO_DATE) + " and "+ endDate.format(DateTimeFormatter.BASIC_ISO_DATE), ioe);
         }
+        return downloadFile;
     }
 
     public static DomElement getDownloadButton(HtmlPage page) {
@@ -142,9 +150,9 @@ public class MarketDataCrawler {
         return webClient;
     }
 
-    public static void downloadFile(WebResponse response, File testFile) throws IOException {
+    public static void downloadFile(WebResponse response, File file) throws IOException {
         try (InputStream inputStream = response.getContentAsStream();
-             OutputStream outputStream = new FileOutputStream(testFile)){
+             OutputStream outputStream = new FileOutputStream(file)){
 
             int read = 0;
             byte[] bytes = new byte[1024];
@@ -158,5 +166,9 @@ public class MarketDataCrawler {
 
     public static String buildFileName(LocalDate date){
         return "SBFCotations"+date.format(DateTimeFormatter.BASIC_ISO_DATE)+".txt";
+    }
+
+    public static String buildIntraFileName(LocalDate date){
+        return "IntraCotations"+date.format(DateTimeFormatter.BASIC_ISO_DATE)+".txt";
     }
 }

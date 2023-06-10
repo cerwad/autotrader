@@ -10,13 +10,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
+import static org.mockito.Mockito.when;
+
 @Profile("test")
 @Configuration
 public class MarketDataCrawlerTestConfiguration {
     @Bean
     @Primary
     public AppProperties appProperties() {
-        return Mockito.mock(AppProperties.class);
+        AppProperties properties = Mockito.mock(AppProperties.class);
+        String baseTestPath = System.getenv("DATADIR")+"/test";
+        when(properties.getBasePath()).thenReturn(baseTestPath);
+        when(properties.getCotationsPath()).thenReturn(baseTestPath);
+        when(properties.getIntradayPath()).thenReturn(baseTestPath);
+        return properties;
     }
 
     @Bean

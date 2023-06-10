@@ -3,29 +3,22 @@ package fr.ced.autotrader.test.webCrawler;
 import fr.ced.autotrader.AppProperties;
 import fr.ced.autotrader.test.MarketDataCrawlerTestConfiguration;
 import fr.ced.autotrader.webCrawler.MarketDataCrawler;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by cwaadd on 13/02/2018.
  */
 @ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MarketDataCrawlerTestConfiguration.class)
 public class MarketDataCrawlerTest {
-
-    @Value("${app.data-path}")
-    private String cotationsPath;
 
     @Autowired
     private AppProperties appProperties;
@@ -36,25 +29,26 @@ public class MarketDataCrawlerTest {
     @Test
     public void testMDataCrawlDwCurrentCotations(){
 
-        Mockito.when(appProperties.getCotationsPath()).thenReturn(cotationsPath);
-        marketDataCrawler.downloadCurrentCotations();
-        File downloadFile = new File(appProperties.getCotationsPath() + "/"+MarketDataCrawler.buildFileName(LocalDate.now()));
-        Assert.assertTrue(downloadFile.exists());
-        if(downloadFile.exists()){
-            downloadFile.delete();
+        File intraDayFile = marketDataCrawler.downloadCurrentCotations();
+        if(marketDataCrawler.isWeekDay()) {
+            assertNotNull(intraDayFile);
+            assertTrue(intraDayFile.exists());
+            if (intraDayFile.exists()) {
+                intraDayFile.delete();
+            }
+        } else {
+            assertNull(intraDayFile);
         }
     }
 
     @Test
     public void testMDataCrawlDwBulkCotations(){
-        Mockito.when(appProperties.getCotationsPath()).thenReturn(cotationsPath);
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.withDayOfMonth(1);
-        marketDataCrawler.downloadMonthlyBulkCotations(startDate, endDate);
-        File downloadFile = new File(appProperties.getCotationsPath() + "/"+MarketDataCrawler.buildFileName(startDate));
-        Assert.assertTrue(downloadFile.exists());
+        File downloadFile = marketDataCrawler.downloadMonthlyBulkCotations(startDate, endDate);
+        assertTrue(downloadFile.exists());
         if(downloadFile.exists()){
-            //downloadFile.delete();
+            downloadFile.delete();
         }
     }
 }

@@ -55,7 +55,7 @@ public class MissingCotations {
     }
 
     public void getAllHistory() {
-        // Get 5 years history for all actions CAC 40 and SBF 120
+        // Get 10 years history for all actions CAC 40 and SBF 120
         LocalDate startDate = LocalDate.now().minus(10, ChronoUnit.YEARS);
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
         startDate = startDate.withDayOfMonth(1);

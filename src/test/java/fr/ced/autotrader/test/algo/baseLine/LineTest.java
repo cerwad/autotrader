@@ -2,18 +2,18 @@ package fr.ced.autotrader.test.algo.baseLine;
 
 import fr.ced.autotrader.algo.baseline.Line;
 import fr.ced.autotrader.data.GraphPoint;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 /**
  * Created by cwaadd on 30/03/2018.
  */
-
 public class LineTest {
 
     @Test
@@ -36,11 +36,11 @@ public class LineTest {
 
         Line l = new Line(p1, p2, d1);
         double p = l.getGraphPrice(d1.plusDays(3));
-        Assert.assertEquals(20, p, 0.05);
+        assertEquals(20, p, 0.05);
         p = l.getGraphPrice(d1.plusDays(7));
-        Assert.assertEquals(20, p, 0.05);
+        assertEquals(20, p, 0.05);
         p = l.getGraphPrice(d1.plusDays(12));
-        Assert.assertEquals(20, p, 0.05);
+        assertEquals(20, p, 0.05);
     }
 
 
@@ -69,10 +69,10 @@ public class LineTest {
 
         Line l = new Line(p1, p2, d1);
         double p = l.getGraphPrice(d1.plusDays(3));
-        Assert.assertEquals(22, p, 0.01);
+        assertEquals(22, p, 0.01);
         p = l.getGraphPrice(d1.plusDays(7));
-        Assert.assertEquals(24.67, p, 0.03);
+        assertEquals(24.67, p, 0.03);
         p = l.getGraphPrice(d1.plusDays(15));
-        Assert.assertEquals(30, p, 0.01);
+        assertEquals(30, p, 0.01);
     }
 }

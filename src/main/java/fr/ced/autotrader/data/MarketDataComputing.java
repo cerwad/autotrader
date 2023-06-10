@@ -3,6 +3,7 @@ package fr.ced.autotrader.data;
 import fr.ced.autotrader.algo.AnalyticsTools;
 import fr.ced.autotrader.algo.ComputingException;
 import fr.ced.autotrader.algo.baseline.*;
+import fr.ced.autotrader.webCrawler.MarketDataCrawler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,25 +25,26 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class MarketDataComputing {
-    private boolean firstComputation = false;
 
     @Autowired
     private ActionDataCsvWriter actionDataCsvWriter;
 
     private final MarketDataRepository marketDataRepository;
-
+    private final IntraDayCotations intraDayCotations;
     private final AnalyticsTools analyticsTools = new AnalyticsTools();
 
     @Scheduled(fixedDelay = 600000, initialDelay = 12000)
     public void computeMarketDataTask(){
         // Recurrent actions
+        log.info("Computing market data");
+        // Download intraday positions
+        intraDayCotations.saveCurrentQuotes();
+
         log.debug("Write action data");
         Collection<Action> actions = marketDataRepository.getAllActions();
-        if(!firstComputation) {
-            log.debug("Compute market data");
-            computeMarketData(actions);
-            firstComputation = true;
-        }
+        log.debug("Compute market data");
+        computeMarketData(actions);
+
         // Write updated action data file while all calculation is finished
         actionDataCsvWriter.write(actions);
     }

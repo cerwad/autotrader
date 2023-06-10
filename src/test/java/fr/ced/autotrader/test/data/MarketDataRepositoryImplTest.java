@@ -1,12 +1,13 @@
 package fr.ced.autotrader.test.data;
 
 import fr.ced.autotrader.data.*;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -15,10 +16,10 @@ import java.util.*;
 
 public class MarketDataRepositoryImplTest {
 
-    private MarketDataRepositoryImpl dataRepository;
+    private static MarketDataRepositoryImpl dataRepository;
 
-    @Before
-    public void init(){
+    @BeforeAll
+    public static void init(){
 
         AllQuotesData allQuotesData = new AllQuotesData();
         dataRepository = new MarketDataRepositoryImpl(allQuotesData);
@@ -135,58 +136,58 @@ public class MarketDataRepositoryImplTest {
     @Test
     public void testNbActions(){
         Collection<Action> actions = dataRepository.getAllActions();
-        Assert.assertEquals(2, actions.size());
+        assertEquals(2, actions.size());
 
     }
 
     @Test
     public void testGetAction(){
         Action action = dataRepository.getActionFromId("MF");
-        Assert.assertNotNull(action);
-        Assert.assertEquals("MF", action.getTicker());
-        Assert.assertEquals("FR0000121204", action.getIsin());
-        Assert.assertEquals("Wendel", action.getName());
+        assertNotNull(action);
+        assertEquals("MF", action.getTicker());
+        assertEquals("FR0000121204", action.getIsin());
+        assertEquals("Wendel", action.getName());
     }
 
     @Test
     public void testGetQuoteByDate(){
         DayQuote quote = dataRepository.getQuoteByDate("MF", LocalDate.of(2017, 9, 20));
-        Assert.assertNotNull(quote);
-        Assert.assertEquals(LocalDate.of(2017, 9, 20), quote.getDate());
+        assertNotNull(quote);
+        assertEquals(LocalDate.of(2017, 9, 20), quote.getDate());
 
         quote = dataRepository.getQuoteByDate("MF", LocalDate.of(2017, 9, 17));
-        Assert.assertNull(quote);
+        assertNull(quote);
     }
 
     @Test
     public void testGetPriceFromAction(){
         Double price = dataRepository.getPriceFromAction("MF", LocalDate.of(2017, 9, 20));
-        Assert.assertNotNull(price);
-        Assert.assertEquals(Double.valueOf( 125.83),  price);
+        assertNotNull(price);
+        assertEquals(Double.valueOf( 125.83),  price);
 
         price = dataRepository.getPriceFromAction("HAV", LocalDate.of(2017, 9, 18));
-        Assert.assertNotNull(price);
-        Assert.assertEquals(Double.valueOf( 8.5),  price);
+        assertNotNull(price);
+        assertEquals(Double.valueOf( 8.5),  price);
     }
 
     @Test
     public void testGetQuotesInterval(){
         List<DayQuote> dayQuotes = dataRepository.getQuotesBetweenDates("MF", LocalDate.of(2017, 9, 18), LocalDate.of(2017, 9, 22));
-        Assert.assertNotNull(dayQuotes);
-        Assert.assertEquals(5, dayQuotes.size());
+        assertNotNull(dayQuotes);
+        assertEquals(5, dayQuotes.size());
     }
 
     @Test
     public void testGetQuotesFromDate(){
         List<DayQuote> dayQuotes = dataRepository.getQuotesFromDate("MF", LocalDate.of(2017, 9, 20));
-        Assert.assertNotNull(dayQuotes);
-        Assert.assertEquals(LocalDate.of(2017, 9, 20), dayQuotes.get(0).getDate());
-        Assert.assertEquals(LocalDate.of(2017, 9, 22), dayQuotes.get(dayQuotes.size()-1).getDate());
-        Assert.assertEquals(3, dayQuotes.size());
+        assertNotNull(dayQuotes);
+        assertEquals(LocalDate.of(2017, 9, 20), dayQuotes.get(0).getDate());
+        assertEquals(LocalDate.of(2017, 9, 22), dayQuotes.get(dayQuotes.size()-1).getDate());
+        assertEquals(3, dayQuotes.size());
 
         dayQuotes = dataRepository.getQuotesFromDate("MF", LocalDate.of(2017, 9, 17)); // Un dimanche
-        Assert.assertNotNull(dayQuotes);
-        Assert.assertEquals(5, dayQuotes.size());
+        assertNotNull(dayQuotes);
+        assertEquals(5, dayQuotes.size());
     }
 
 }

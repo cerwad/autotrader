@@ -11,21 +11,15 @@ import org.htmlunit.WebResponse;
 import org.htmlunit.html.DomElement;
 import org.htmlunit.html.DomNodeList;
 import org.htmlunit.html.HtmlPage;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static fr.ced.autotrader.webCrawler.MarketDataCrawler.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -36,10 +30,16 @@ public class CotationsGatheringTest {
 
     public static final String ABCBOURSE_URL = "https://www.abcbourse.com/download/historiques.aspx";
 
+    private static String basePath;
+
+    @BeforeAll
+    public static void init(){
+        basePath = System.getenv("DATADIR")+"/test";
+    }
 
     @Test
     public void testDownload() throws IOException {
-        File testFile = new File("C:\\Programmation\\test\\test.txt");
+        File testFile = new File(basePath+"/test.txt");
         if (testFile.exists()) {
             testFile.delete();
         }
@@ -50,23 +50,23 @@ public class CotationsGatheringTest {
 
             // Find page title
             DomNodeList<DomElement> elements = page.getElementsByTagName("h1");
-            Assert.assertEquals(1, elements.size());
+            assertEquals(1, elements.size());
             DomElement element = elements.get(0);
 
             System.out.println(element.getTextContent());
-            Assert.assertEquals("Téléchargement des cotations", element.getTextContent());
+            assertEquals("Téléchargement des cotations", element.getTextContent());
 
             // Select CAC40 shares
             DomElement cboxCac = page.getFirstByXPath("//input[@value='xcac40p']");
-            Assert.assertNotNull(cboxCac);
+            assertNotNull(cboxCac);
             element.click();
 
             // Click on download Button
             DomElement buttonDownload = page.getFirstByXPath("//button[@class='btn_abc']");
-            Assert.assertNotNull(buttonDownload);
+            assertNotNull(buttonDownload);
             HtmlPage htmlPage = buttonDownload.click();
             WebResponse response = htmlPage.getWebResponse();
-            Assert.assertEquals(200, response.getStatusCode());
+            assertEquals(200, response.getStatusCode());
 
 
             // Download File
@@ -87,7 +87,7 @@ public class CotationsGatheringTest {
 
     @Test
     public void testCurrentCotations() {
-        File testFile = new File("C:\\Programmation\\test\\test.txt");
+        File testFile = new File(basePath+"/test.txt");
         if (testFile.exists()) {
             testFile.delete();
         }
@@ -135,13 +135,13 @@ public class CotationsGatheringTest {
 
     @Test
     public void testMarketDataCrawler() {
-        File testFile = new File("C:\\Programmation\\test\\test.txt");
+        File testFile = new File(basePath+"/test.txt");
         if (testFile.exists()) {
             testFile.delete();
         }
         try {
             AppProperties appProperties = Mockito.mock(AppProperties.class);
-            Mockito.when(appProperties.getCotationsPath()).thenReturn("C:\\Programmation\\test\\");
+            Mockito.when(appProperties.getIntradayPath()).thenReturn(basePath);
             MarketDataCrawler marketDataCrawler = new MarketDataCrawler(appProperties);
             marketDataCrawler.downloadCurrentCotations();
 
@@ -150,7 +150,6 @@ public class CotationsGatheringTest {
                 testFile.delete();
             }
         }
-
 
         assertFalse(testFile.exists());
     }

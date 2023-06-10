@@ -44,6 +44,8 @@ public class Startup implements ApplicationContextAware {
 
     private final MarketDataRepository marketDataRepository;
     private final ThreadPoolTaskExecutor taskExecutor;
+
+    private final IntraDayCotations intraDayCotations;
     private ApplicationContext applicationContext;
 
 
@@ -91,8 +93,12 @@ public class Startup implements ApplicationContextAware {
 
         }
 
+        // Download quotes of the current day
+        intraDayCotations.saveCurrentQuotes();
+
         // HERE Check if there is missing data for a specific action
     }
+
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
