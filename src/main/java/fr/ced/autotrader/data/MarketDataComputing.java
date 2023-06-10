@@ -59,7 +59,7 @@ public class MarketDataComputing {
                 computeSupports(action);
                 setTrend(action, prices);
                 long techMark = computeTechnicalMark(action, prices);
-                action.setTechnicalMark( 6 - ((double) techMark / 20));
+                action.setTechnicalMark(Math.min(5,  6 - ((double) techMark / 20)));
 
                 computeGlobalMark(action);
                 action.setPotential(computeShortPotential(prices));

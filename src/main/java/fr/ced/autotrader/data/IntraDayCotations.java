@@ -17,8 +17,10 @@ public class IntraDayCotations {
     private final MarketDataCrawler marketDataCrawler;
 
     public void saveCurrentQuotes(){
-        File file = marketDataCrawler.downloadCurrentCotations();
-        dataReader.readDataFile(file);
-        file.delete();
+        if(marketDataCrawler.isWeekDay()) {
+            File file = marketDataCrawler.downloadCurrentCotations();
+            dataReader.readDataFile(file);
+            file.delete();
+        }
     }
 }
