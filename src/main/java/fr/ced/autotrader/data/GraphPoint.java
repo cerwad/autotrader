@@ -1,5 +1,7 @@
 package fr.ced.autotrader.data;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -11,7 +13,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 /**
  * Created by cwaadd on 26/09/2017.
  */
-
+@Slf4j
 public class GraphPoint {
 
     private Double price;
@@ -54,6 +56,10 @@ public class GraphPoint {
 
     public BigDecimal calculateCoef(GraphPoint p2){
         long nbDays = DAYS.between(this.getLocalDate(), p2.getLocalDate());
+        if(nbDays == 0){
+            log.error("Same data points for date "+getDate());
+            return BigDecimal.ZERO;
+        }
         return BigDecimal.valueOf(p2.getPrice() - getPrice()).divide(new BigDecimal(nbDays), 10, RoundingMode.HALF_UP);
 
     }

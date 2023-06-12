@@ -83,7 +83,7 @@ public class GraphAdapter {
         for (int i = 0; i < prices.size(); i++) {
             if (i % pas == 0 || i == prices.size() - 1) {
                 GraphPoint p = prices.get(i);
-                if ((p.getLocalDate().equals(startDate) || p.getLocalDate().isAfter(startDate)) && p.getLocalDate().isBefore(endDate)) {
+                if ((p.getLocalDate().equals(startDate) || p.getLocalDate().isAfter(startDate)) && (p.getLocalDate().equals(endDate) || p.getLocalDate().isBefore(endDate))) {
                     ret.add(p);
                 }
             }

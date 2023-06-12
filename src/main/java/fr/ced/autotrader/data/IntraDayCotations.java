@@ -18,6 +18,7 @@ public class IntraDayCotations {
 
     public void saveCurrentQuotes(){
         if(marketDataCrawler.isWeekDay()) {
+            log.info("Downloading intraday Quotes");
             File file = marketDataCrawler.downloadCurrentCotations();
             dataReader.readDataFile(file);
             file.delete();

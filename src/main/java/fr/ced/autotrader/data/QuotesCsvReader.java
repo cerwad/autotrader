@@ -254,16 +254,16 @@ public class QuotesCsvReader implements MarketDataReader {
                             date = LocalDate.parse(value, dTF);
                             break;
                         case OPEN_QUOTE:
-                            openQuote = Double.parseDouble(value);
+                            openQuote = parseDouble(value);
                             break;
                         case MAX_QUOTE:
-                            maxQuote = Double.parseDouble(value);
+                            maxQuote = parseDouble(value);
                             break;
                         case MIN_QUOTE:
-                            minQuote = Double.parseDouble(value);
+                            minQuote = parseDouble(value);
                             break;
                         case CLOSE_QUOTE:
-                            closeQuote = Double.parseDouble(value);
+                            closeQuote = parseDouble(value);
                             break;
                         case VOL_QUOTE:
                             volQuote = Long.parseLong(value);
@@ -307,6 +307,8 @@ public class QuotesCsvReader implements MarketDataReader {
             if (!allQuotesData.getSortedQuotes().containsKey(dayQuote.getId())) {
                 allQuotesData.getSortedQuotes().put(dayQuote.getId(), new ArrayList<>());
             }
+            LocalDate finalDate = date;
+            allQuotesData.getSortedQuotes().get(dayQuote.getId()).removeIf(d -> d.getDate().equals(finalDate));
             allQuotesData.getSortedQuotes().get(dayQuote.getId()).add(dayQuote);
             allQuotesData.getSortedQuotes().get(dayQuote.getId()).sort(MarketDataRepository.dateComparator);
 
@@ -364,5 +366,13 @@ public class QuotesCsvReader implements MarketDataReader {
             l++;
         }
 
+    }
+
+    private Double parseDouble(String value){
+        String number = value;
+        if(value.contains(",")){
+            number = value.replace(",", ".");
+        }
+        return Double.parseDouble(number);
     }
 }

@@ -2,6 +2,7 @@ package fr.ced.autotrader;
 
 import fr.ced.autotrader.data.*;
 import fr.ced.autotrader.data.time.MonthInterval;
+import fr.ced.autotrader.data.time.WorkDay;
 import fr.ced.autotrader.webCrawler.MarketDataCrawler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,8 +71,7 @@ public class Startup implements ApplicationContextAware {
         }
 
         dataReader.loadData();
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        if(dataReader.getLastDateOfCotation().isBefore(yesterday)){
+        if(dataReader.getLastDateOfCotation().isBefore(WorkDay.lastWorkDay(LocalDate.now()))){
             try {
                 missingCotations.downloadMissingCotations();
             } catch (Exception e){
@@ -92,9 +92,6 @@ public class Startup implements ApplicationContextAware {
             }
 
         }
-
-        // Download quotes of the current day
-        intraDayCotations.saveCurrentQuotes();
 
         // HERE Check if there is missing data for a specific action
     }
